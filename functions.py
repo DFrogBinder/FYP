@@ -1,13 +1,16 @@
 import numpy as np
+import sys
+import struct
 import os
 from collections import Counter
+np.set_printoptions(threshold=sys.maxsize)
 
 
 def MDR_path(which):
     if Counter("Data")==Counter(which):
-        path = os.path.join(os.getcwd(),'Python_tanslation','Data')
+        path = os.path.join(os.path.dirname( __file__ ),'Data')
     elif Counter("Results")==Counter(which):
-        path = os.path.join(os.getcwd(),'Python_tanslation','Results')
+        path = os.path.join(os.path.dirname( __file__ ),'Results')
     return(path)
 
 def Load_Data(DataSet,time, Caif, Data, Baseline):
@@ -166,13 +169,18 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
         print("Exiting...")
         return
 
-    Dir = [MDR_path('Data') + Folder +'\'' + DataSet]
+    Dir = os.path.join(MDR_path('Data'),Folder,DataSet)
 
     img = Dir + '_DCE.dat'
     aif =  Dir + '_AIF.txt'
 
-    data = np.array(nx,ny,nz,nt)
 
+    data = np.fromfile(img)
+    
+    data = np.reshape(data,(nx,ny,nz,nt))
+
+    print(data.shape)
+    return 
     # open(img)
     # Read Data = Data
     #TODO: Implement the rest of the code when you've played with loading .dat files
