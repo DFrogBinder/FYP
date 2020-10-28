@@ -29,9 +29,12 @@ def fit_measured_2d(DataSet = 'RIFF_C03',   # Default values
 
 
     # Load Data and Export
+    time,Ca,Source,Baseline = functions.Load_Data(DataSet)
+    n = Source.shape
+    Independent = {"t":time, "ca":Ca, "n0":Baseline}
+    File = os.path.join(path,'Dynamics')
+    functions.Export_Gif(Source,File,[0,np.amax(Source)])
 
-    Data = functions.Load_Data(DataSet,'Time','Caif',
-                            'Source','Baseline')
     return
     
 

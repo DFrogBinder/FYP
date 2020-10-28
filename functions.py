@@ -45,13 +45,13 @@ def PMI_ReadPlot(File):
         
     return tX, tY
 
-def Load_Data(DataSet,time, Caif, Data, Baseline):
+def Load_Data(DataSet):
     if Counter('NonRigid_Motion')==Counter(DataSet):
         nx = 224
         ny = 224
         nz = 5
         nt = 151
-        n0 = '5E'
+        n0 = 5
         Folder = 'DRO_data'
     
     elif Counter('Rigid_Motion')==Counter(DataSet):
@@ -59,7 +59,7 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
         ny = 224
         nz = 5
         nt = 151
-        n0 = '5E'
+        n0 = 5
         Folder = 'DRO_data'
     
     elif Counter('Motion_Free')==Counter(DataSet):
@@ -67,7 +67,7 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
         ny = 224
         nz = 5
         nt = 151
-        n0 = '5E'
+        n0 = 5
         Folder = 'DRO_data'
     
     elif Counter('Window')==Counter(DataSet):
@@ -75,7 +75,7 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
         ny = 181
         nz = 1
         nt = 181
-        n0 = '8E'
+        n0 = 8
         Slice = 0
         Folder = 'Patient_2D'
     
@@ -84,7 +84,7 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
         ny = 480
         nz = 3
         nt = 159
-        n0 = '15E'
+        n0 = 15
         Slice = 1
         Folder = 'Patient_2D'
     
@@ -93,7 +93,7 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
         ny = 480
         nz = 3
         nt = 249
-        n0 = '15E'
+        n0 = 15
         Slice = 1
         Folder = 'Patient_2D'
 
@@ -102,7 +102,7 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
         ny = 480
         nz = 3
         nt = 249
-        n0 = '19E'
+        n0 = 19
         Slice = 1
         Folder = 'Patient_2D'
 
@@ -111,7 +111,7 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
         ny = 512
         nz = 3
         nt = 249
-        n0 = '17E'
+        n0 = 17
         Slice = 1
         Folder = 'Patient_2D'
 
@@ -120,7 +120,7 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
         ny = 528
         nz = 3
         nt = 249
-        n0 = '15E'
+        n0 = 15
         Slice = 1
         Folder = 'Patient_2D'
 
@@ -129,7 +129,7 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
         ny = 480
         nz = 3
         nt = 250
-        n0 = '20E'
+        n0 = 20
         Slice = 1
         Folder = 'Patient_2D'
     
@@ -138,7 +138,7 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
         ny = 128
         nz = 20
         nt = 125
-        n0 = '10E'
+        n0 = 10
         Folder = 'Patient_3D'
 
     elif Counter('BA50a')==Counter(DataSet):
@@ -146,7 +146,7 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
         ny = 128
         nz = 20
         nt = 125
-        n0 = '15E'
+        n0 = 15
         Folder = 'Patient_3D'
 
     elif Counter('CH6a')==Counter(DataSet):
@@ -154,7 +154,7 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
         ny = 128
         nz = 20
         nt = 125
-        n0 = '11E'
+        n0 = 11
         Folder = 'Patient_3D'
 
     elif Counter('CW8a')==Counter(DataSet):
@@ -162,7 +162,7 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
         ny = 128
         nz = 20
         nt = 125
-        n0 = '15E'
+        n0 = 15
         Folder = 'Patient_3D'
 
     elif Counter('EA14a')==Counter(DataSet):
@@ -170,7 +170,7 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
         ny = 128
         nz = 20
         nt = 125
-        n0 = '4E'
+        n0 = 4
         Folder = 'Patient_3D'
 
     elif Counter('FJ14a')==Counter(DataSet):
@@ -178,7 +178,7 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
         ny = 128
         nz = 20
         nt = 125
-        n0 = '12E'
+        n0 = 12
         Folder = 'Patient_3D'
 
     elif Counter('GD7a')==Counter(DataSet):
@@ -186,7 +186,7 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
         ny = 128
         nz = 20
         nt = 125
-        n0 = '9E'
+        n0 = 9
         Folder = 'Patient_3D'
     
     elif Counter('HD3a')==Counter(DataSet):
@@ -194,7 +194,7 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
         ny = 128
         nz = 20
         nt = 125
-        n0 = '9E'
+        n0 = 9
         Folder = 'Patient_3D'
     else:
         print("Unknown Data Set")
@@ -210,8 +210,6 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
     data = np.fromfile(img, dtype=np.float32)
     
     data = np.reshape(data,(nx,ny,nz,nt))
-    print(nx*ny*nz*nt)
-    print(data.shape)
 
     if Counter('Patient_2D')==Counter(Folder):
         data = data[:,:,Slice,:]
@@ -223,8 +221,20 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
     else:
         print("Folder not recognised")
         return
-    X,Y = PMI_ReadPlot(aif)   
+    time,Sa = PMI_ReadPlot(aif)   
     
+    Caif = Sa - np.sum(Sa[range(n0)],dtype=np.float32)/n0
     
-    print("Succesuf execution!")
-    return 
+    return time, Caif, data, n0
+
+def Export_Gif(Image, File, Range):
+    #TODO: Find what the "PERC" routine is
+    file_dat = File + '.dat'
+    ImageC = Image.copy(order='C')
+    
+    with open(file_dat,'wb') as fout:
+        fout.write(np.float32(ImageC))
+        fout.close()
+    
+    NumberOfDimentions = len(Image.shape)
+    return

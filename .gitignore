@@ -1,1 +1,3 @@
 Data/
+*.dat
+__pychache__/
