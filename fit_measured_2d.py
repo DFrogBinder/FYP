@@ -27,7 +27,6 @@ def fit_measured_2d(DataSet = 'RIFF_C03',   # Default values
     
     path = os.path.join(functions.MDR_path('Results'),folder)
 
-    #os.mkdir(path)
 
     # Load Data and Export
 

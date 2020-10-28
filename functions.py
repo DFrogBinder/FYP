@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import sys
 import struct
 import os
@@ -12,6 +13,37 @@ def MDR_path(which):
     elif Counter("Results")==Counter(which):
         path = os.path.join(os.path.dirname( __file__ ),'Results')
     return(path)
+
+def PMI_ReadPlot(File):
+    s = open(File, 'r')
+    TempList = []
+    DataList = s.readlines()
+    for entry in DataList:
+        TempList.append(entry.rstrip())
+    s.close()
+
+    PDList = pd.DataFrame(TempList)
+    ArrList = PDList.to_numpy()
+
+    SplitPoint = int(np.where(ArrList=="Y-values")[0])
+
+    tX,tY=np.split(ArrList,[SplitPoint])
+    DelIndex = [0,0]
+    for index in DelIndex:
+        tX = np.delete(tX,index)
+        tY = np.delete(tY,index)
+
+    tX = np.delete(tX,len(tX)-1) #TODO: figure a better way of doing this
+
+    if len(tY)==len(tX):
+        for value in range(len(tX)):
+            tX[value] = np.float32(tX[value])
+            tY[value] = np.float32(tY[value])
+    else:
+        print("X and Y dimentions are not equal")
+        return
+        
+    return tX, tY
 
 def Load_Data(DataSet,time, Caif, Data, Baseline):
     if Counter('NonRigid_Motion')==Counter(DataSet):
@@ -175,12 +207,24 @@ def Load_Data(DataSet,time, Caif, Data, Baseline):
     aif =  Dir + '_AIF.txt'
 
 
-    data = np.fromfile(img)
+    data = np.fromfile(img, dtype=np.float32)
     
     data = np.reshape(data,(nx,ny,nz,nt))
-
+    print(nx*ny*nz*nt)
     print(data.shape)
+
+    if Counter('Patient_2D')==Counter(Folder):
+        data = data[:,:,Slice,:]
+        data = np.transpose(data,[2,0,1])
+    elif Counter('Patient_3D')==Counter(Folder):
+        data = np.transpose(data,[3,0,1,2])
+    elif Counter('DRO_data')==Counter(Folder):
+        data = np.transpose(data,[3,0,1,2])
+    else:
+        print("Folder not recognised")
+        return
+    X,Y = PMI_ReadPlot(aif)   
+    
+    
+    print("Succesuf execution!")
     return 
-    # open(img)
-    # Read Data = Data
-    #TODO: Implement the rest of the code when you've played with loading .dat files
