@@ -26,6 +26,10 @@ def fit_measured_2d(DataSet = 'RIFF_C03',   # Default values
         folder = folder + '_' + str(grid_size)
     
     path = os.path.join(functions.MDR_path('Results'),folder)
+    if os.path.isdir(path)==True:
+        print("Result folder already exist")
+    else:
+        os.mkdir(path)
 
 
     # Load Data and Export

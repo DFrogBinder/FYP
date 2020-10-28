@@ -231,10 +231,21 @@ def Export_Gif(Image, File, Range):
     #TODO: Find what the "PERC" routine is
     file_dat = File + '.dat'
     ImageC = Image.copy(order='C')
-    
-    with open(file_dat,'wb') as fout:
-        fout.write(np.float32(ImageC))
-        fout.close()
+
+    fout = open(file_dat,'wb')
+    fout.write(np.float32(ImageC))
+    fout.close()
     
     NumberOfDimentions = len(Image.shape)
+    Dimentions = Image.shape
+
+    if NumberOfDimentions == 3:
+        print("Do stuff")
+    elif NumberOfDimentions == 4:
+        file_gif = File + '.gif'
+        print("Do stuff")
+    else:
+        print("Number of Dimentions not supported")
+        return
+
     return
