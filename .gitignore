@@ -1,4 +1,4 @@
 Data/
 *.dat
 __pychache__/
-
+*.pyc
