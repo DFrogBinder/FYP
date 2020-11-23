@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt 
 import sys
 import struct
 import os
@@ -208,8 +209,10 @@ def Load_Data(DataSet):
 
 
     data = np.fromfile(img, dtype=np.float32)
-    
     data = np.reshape(data,(nx,ny,nz,nt))
+    
+    data_raw = data
+
 
     if Counter('Patient_2D')==Counter(Folder):
         data = data[:,:,Slice,:]
@@ -225,7 +228,7 @@ def Load_Data(DataSet):
     
     Caif = Sa - np.sum(Sa[range(n0)],dtype=np.float32)/n0
     
-    return time, Caif, data, n0
+    return time, Caif, data, n0, data_raw
 
 def Export_Gif(Image, File, Range):
     #TODO: Find what the "PERC" routine is

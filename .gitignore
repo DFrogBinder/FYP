@@ -1,4 +1,3 @@
-Data/
-*.dat
-__pychache__/
+/Data/
+/Images/
 *.pyc
