@@ -224,62 +224,69 @@ def LinFit(DiffImage, bv):
                 return logS0_ADC
 
 def Scratch():
-    PathDicom = "./Data/"
-    lstFilesDCM = []  # create an empty list
-    for dirName, subdirList, fileList in os.walk(PathDicom):
-        for filename in fileList:
-            if ".dcm" in filename.lower():  # check whether the file's DICOM
-                lstFilesDCM.append(os.path.join(dirName,filename))
+        PathDicom = "D:\IDL\PatientData\DICOM"
+        lstFilesDCM = []  # create an empty list
+        for dirName, subdirList, fileList in os.walk(PathDicom):
+                for filename in fileList:
+                        if ".dcm" in filename.lower():  # check whether the file's DICOM
+                                lstFilesDCM.append(os.path.join(dirName,filename))
 
-    # Get ref file
-    RefDs = pydicom.read_file(lstFilesDCM[0])
+        # Get ref file
+        RefDs = pydicom.read_file(lstFilesDCM[0])
 
-    # Load dimensions based on the number of rows, columns, and slices (along the Z axis)
-    ConstPixelDims = (int(RefDs.Rows), int(RefDs.Columns), len(lstFilesDCM))
+        # Load dimensions based on the number of rows, columns, and slices (along the Z axis)
+        ConstPixelDims = (int(RefDs.Rows), int(RefDs.Columns), len(lstFilesDCM))
 
-    # Load spacing values (in mm)
-    ConstPixelSpacing = (float(RefDs.PixelSpacing[0]), float(RefDs.PixelSpacing[1]), float(RefDs.SliceThickness))
+        # Load spacing values (in mm)
+        ConstPixelSpacing = (float(RefDs.PixelSpacing[0]), float(RefDs.PixelSpacing[1]), float(RefDs.SliceThickness))
 
-    # The array is sized based on 'ConstPixelDims'
-    ArrayDicom = np.zeros(ConstPixelDims, dtype=RefDs.pixel_array.dtype)
+        # The array is sized based on 'ConstPixelDims'
+        ArrayDicom = np.zeros(ConstPixelDims, dtype=RefDs.pixel_array.dtype)
 
-    #loop through all the DICOM files
-    for filenameDCM in lstFilesDCM:
-        # read the file
-        ds = pydicom.read_file(filenameDCM)
-        # store the raw image data
-        ArrayDicom[:, :, lstFilesDCM.index(filenameDCM)] = ds.pixel_array
 
-    FirstImage = ArrayDicom[:,:,0]
-    bv = np.full((1,1),1000)
-    
-    LinFitImageList = np.empty([128,128])
-    # Linear fittet
-    
-    for image in range(len(ArrayDicom[0,0,:])):
-        logS0_ADC = LinFit(ArrayDicom[:,:,image],bv)
-        LinFitImageList = np.dstack((LinFitImageList,logS0_ADC)) 
-    
-    logS0_ADC = LinFit(FirstImage,bv)
-    
-    fig, ax = plt.subplots(figsize=(5, 8))
-    def update(i):
-        im_normed = LinFitImageList[:,:,i]
-        ax.imshow(im_normed,cmap='gray')
-        ax.set_axis_off()
-        print(i)
-    anim = FuncAnimation(fig, update, frames=np.arange(0, 100), interval=1).save("Anim.gif")
-    plt.close()
-   
-    # Non-linear Fitter
-    #Fit(FirstImage,bv)
-    
+        #loop through all the DICOM files
+        for filenameDCM in lstFilesDCM:
+                # read the file
+                ds = pydicom.read_file(filenameDCM)
+                #print("Current Aquisition: "+str(ds[0x0020,0x0012].value))
+                # store the raw image data
+                if int(ds[0x0020,0x0011].value)==30 and int(ds[0x0020,0x0012].value)==5:
+                        print("Image from first Aquisition Found!")
+                        ArrayDicom[:, :, lstFilesDCM.index(filenameDCM)] = ds.pixel_array
+                else:
+                        continue
+                        
+                
+        #FirstImage = ArrayDicom[:,:,0]
+        bv = np.full((1,1),1000)
+        
+        LinFitImageList = np.empty([128,128])
+        # Linear fittet
+        
+        for image in range(len(ArrayDicom[0,0,:])):
+                logS0_ADC = LinFit(ArrayDicom[:,:,image],bv)
+                LinFitImageList = np.dstack((LinFitImageList,logS0_ADC)) 
+        
+        logS0_ADC = LinFit(FirstImage,bv)
+        
+        fig, ax = plt.subplots(figsize=(5, 8))
+        def update(i):
+                im_normed = LinFitImageList[:,:,i]
+                ax.imshow(im_normed,cmap='gray')
+                ax.set_axis_off()
+                print(i)
+        anim = FuncAnimation(fig, update, frames=np.arange(0, 100), interval=1).save("Anim.gif")
+        plt.close()
+        
+        # Non-linear Fitter
+        #Fit(FirstImage,bv)
+        
 
-    plt.figure()
-    plt.imshow(LinFitImageList[:,:,1],cmap="gray")
-    plt.figure()
-    plt.imshow(ArrayDicom[:,:,0],cmap="gray")
-    plt.show()
-    plt.close()
+        plt.figure()
+        plt.imshow(LinFitImageList[:,:,1],cmap="gray")
+        plt.figure()
+        plt.imshow(ArrayDicom[:,:,0],cmap="gray")
+        plt.show()
+        plt.close()
 
 Scratch()
