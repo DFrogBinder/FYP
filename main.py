@@ -214,7 +214,8 @@ def LinFit(DiffImage, bv):
                 #bv = bv.reshape(bv,[1,1])
                 #logS = logS.reshape(logS,[logS.shape[0],1],order='F')
 
-                bv = np.reshape(bv,[1,2])
+                bv = np.reshape(bv,[1,1])
+                bv = bv.T
                 logS0_ADC = np.linalg.lstsq(bv,logS,rcond=None)[0].T
                 #linreg = LinearRegression()
                 #results = linreg.fit(bv,logS)
@@ -243,7 +244,7 @@ def Scratch():
         # The array is sized based on 'ConstPixelDims'
         ArrayDicom = np.zeros(ConstPixelDims, dtype=RefDs.pixel_array.dtype)
         Bvalues=[]
-
+        
         #loop through all the DICOM files
         print("Loading Data...")
         for filenameDCM in tqdm(lstFilesDCM):
@@ -252,32 +253,36 @@ def Scratch():
                 #print("Current Aquisition: "+str(ds[0x0020,0x0012].value))
                 # store the raw image data
                 Bvalues.append(int(ds[0x0019,0x100c].value))
+                #print("Series Number: "+str(ds[0x0020,0x0011].value))
+                #print("Acquisition Number: "+str(ds[0x0020,0x0012].value))
+                #print("Instantce Number: "+str(ds[0x0020,0x0013].value))
                 ArrayDicom[:, :, lstFilesDCM.index(filenameDCM)] = ds.pixel_array
             
 
                         
               
         FirstImage = ArrayDicom[:,:,15]
-        bv = np.unique(np.asarray(Bvalues))
+        bv = np.asarray(Bvalues)
         ResultsList= np.empty([ArrayDicom.shape[0]*ArrayDicom.shape[1],2])
-        LinFitImageList = np.empty([ArrayDicom.shape[0]*ArrayDicom.shape[1],2])
-        '''
+        LinFitImageList = np.empty([ArrayDicom.shape[0]*ArrayDicom.shape[1],1])
+        #logS0_ADC = LinFit(ArrayDicom,bv)
+        
         # Linear fittet
         print("Performing Liner fit")
         for image in tqdm(range(len(ArrayDicom[0,0,:]))):
-                logS0_ADC = LinFit(ArrayDicom[:,:,image],bv)
-                logS0_ADC = np.reshape(logS0_ADC,[ArrayDicom.shape[0]*ArrayDicom.shape[1],2])
+                logS0_ADC = LinFit(ArrayDicom[:,:,image],bv[image])
+                #logS0_ADC = np.reshape(logS0_ADC,[ArrayDicom.shape[0]*ArrayDicom.shape[1],2])
                 #Results = np.reshape(Results.coef_,[ArrayDicom.shape[0]*ArrayDicom.shape[1],2])
                 LinFitImageList = np.dstack((LinFitImageList,logS0_ADC)) 
                 #ResultsList = np.dstack((ResultsList,Results)) 
 
-        '''
-        FirstImage= LinFit(FirstImage,bv)
-        FirstImage = np.reshape(FirstImage,[ArrayDicom.shape[0],ArrayDicom.shape[1],2],order='F')
-        
+
+        #FirstImage= LinFit(FirstImage,bv)
+        #FirstImage = np.reshape(FirstImage,[ArrayDicom.shape[0],ArrayDicom.shape[1],2],order='F')
+        LinFitImageList = np.reshape(LinFitImageList,[172,172,901])
         # Code to create .gif file of the fitted images
         
-        '''
+        print("Creting GIF image...")
         fig, ax = plt.subplots(figsize=(5, 8))
         def update(i):
                 im_normed = LinFitImageList[:,:,i]
@@ -286,16 +291,16 @@ def Scratch():
                 print(i)
         anim = FuncAnimation(fig, update, frames=np.arange(0, 100), interval=1).save("Anim.gif")
         plt.close()
-        '''
+        
         # Non-linear Fitter
         #Fit(FirstImage,bv)
         
-
+        '''
         plt.figure()
         plt.imshow(FirstImage[:,:,0],cmap="gray")
         plt.figure()
         plt.imshow( FirstImage[:,:,1],cmap="gray")
         plt.show()
         plt.close()
-
+        '''
 Scratch()
