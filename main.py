@@ -6,18 +6,20 @@ import warnings
 import png
 import pandas as pd 
 import numpy.ma as ma
-from PIL import Image as im
 import scipy.misc
+from sklearn.linear_model import LinearRegression
+from PIL import Image as im
 from pydicom import dcmread
 from pydicom.data import get_testdata_file
 from scipy.optimize import curve_fit
 from pathlib import Path
 from time import process_time, sleep
 from matplotlib.animation import FuncAnimation
+from tqdm import tqdm
 
 
-def Model(x, S0): 
-        return  S0*np.exp(-1000 * x)
+def Model(x, S0,bv): 
+        return  S0*np.exp(bv * (-x))
 def Fit(px,bv):
         t1_start = process_time() 
                 
@@ -50,7 +52,6 @@ def Fit(px,bv):
         adc = []
         c = 0
         
-        ##########################################################################################
         # Functions section 
         def func(x, bv, S0): 
                 return  S0*np.exp(bv * (-x))
@@ -82,8 +83,8 @@ def Fit(px,bv):
                 logS = np.log(S)
                 logS = logS.T
 
-                B = np.vstack((np.ones(bvalues.shape),bvalues))
-                B = B.T
+                #B = np.vstack((np.ones(bvalues.shape),bvalues))
+                B = np.reshape(bvalues,[1,2])
                 
                 logS0_ADC = np.linalg.lstsq(B,logS,rcond=None)[0].T
         
@@ -97,8 +98,6 @@ def Fit(px,bv):
         Rows = []
         ##########################################################################################
         # Iterating through the matrix row by row
-        for row in yD:
-            print(row)
         for row in yD.T: 
                 if c == yD.shape[1]-1:
                         
@@ -132,7 +131,7 @@ def Fit(px,bv):
                                 Guess = geneticParameters[c]
                                 p1 = Guess[0]
                                 p2 = Guess[1]
-                                RowFit,pocv = curve_fit(func,p2, row, p0=[xD,p1],maxfev=ItNum,
+                                RowFit,pocv = curve_fit(func,xD,row, p0=[p1,p2],maxfev=ItNum,
                                                         method='lm',absolute_sigma='True'
                                                     )              
                                 S0.append(RowFit[1])
@@ -196,15 +195,14 @@ def Fit(px,bv):
         yModel = func(xModel, *RowFit)
         
         return S0,adc
-
 def LinFit(DiffImage, bv):
                 sz = DiffImage.shape  
                 
                 bvalues = bv
                 S = DiffImage
-        
+                # Flattens the image into a vector
                 S = np.reshape(DiffImage,[sz[0]*sz[1], 1],order='F')
-                S[S == 0] = 1e-16
+                S[S == 0] = 1e-16  # Removes zeroes to prevent erros
                 
                 S[S==0]=np.amin(S[S>0])
                 
@@ -216,11 +214,13 @@ def LinFit(DiffImage, bv):
                 #bv = bv.reshape(bv,[1,1])
                 #logS = logS.reshape(logS,[logS.shape[0],1],order='F')
 
+                bv = np.reshape(bv,[1,2])
                 logS0_ADC = np.linalg.lstsq(bv,logS,rcond=None)[0].T
-        
+                #linreg = LinearRegression()
+                #results = linreg.fit(bv,logS)
+
                 where_are_NaNs = np.isnan(logS0_ADC)
                 logS0_ADC[where_are_NaNs] = 0
-                logS0_ADC = np.reshape(logS0_ADC,[128,128],order='F')
                 return logS0_ADC
 
 def Scratch():
@@ -242,33 +242,42 @@ def Scratch():
 
         # The array is sized based on 'ConstPixelDims'
         ArrayDicom = np.zeros(ConstPixelDims, dtype=RefDs.pixel_array.dtype)
-
+        Bvalues=[]
 
         #loop through all the DICOM files
-        for filenameDCM in lstFilesDCM:
+        print("Loading Data...")
+        for filenameDCM in tqdm(lstFilesDCM):
                 # read the file
                 ds = pydicom.read_file(filenameDCM)
                 #print("Current Aquisition: "+str(ds[0x0020,0x0012].value))
                 # store the raw image data
-                if int(ds[0x0020,0x0011].value)==30 and int(ds[0x0020,0x0012].value)==5:
-                        print("Image from first Aquisition Found!")
-                        ArrayDicom[:, :, lstFilesDCM.index(filenameDCM)] = ds.pixel_array
-                else:
-                        continue
+                Bvalues.append(int(ds[0x0019,0x100c].value))
+                ArrayDicom[:, :, lstFilesDCM.index(filenameDCM)] = ds.pixel_array
+            
+
                         
-                
-        #FirstImage = ArrayDicom[:,:,0]
-        bv = np.full((1,1),1000)
-        
-        LinFitImageList = np.empty([128,128])
+              
+        FirstImage = ArrayDicom[:,:,15]
+        bv = np.unique(np.asarray(Bvalues))
+        ResultsList= np.empty([ArrayDicom.shape[0]*ArrayDicom.shape[1],2])
+        LinFitImageList = np.empty([ArrayDicom.shape[0]*ArrayDicom.shape[1],2])
+        '''
         # Linear fittet
-        
-        for image in range(len(ArrayDicom[0,0,:])):
+        print("Performing Liner fit")
+        for image in tqdm(range(len(ArrayDicom[0,0,:]))):
                 logS0_ADC = LinFit(ArrayDicom[:,:,image],bv)
+                logS0_ADC = np.reshape(logS0_ADC,[ArrayDicom.shape[0]*ArrayDicom.shape[1],2])
+                #Results = np.reshape(Results.coef_,[ArrayDicom.shape[0]*ArrayDicom.shape[1],2])
                 LinFitImageList = np.dstack((LinFitImageList,logS0_ADC)) 
+                #ResultsList = np.dstack((ResultsList,Results)) 
+
+        '''
+        FirstImage= LinFit(FirstImage,bv)
+        FirstImage = np.reshape(FirstImage,[ArrayDicom.shape[0],ArrayDicom.shape[1],2],order='F')
         
-        logS0_ADC = LinFit(FirstImage,bv)
+        # Code to create .gif file of the fitted images
         
+        '''
         fig, ax = plt.subplots(figsize=(5, 8))
         def update(i):
                 im_normed = LinFitImageList[:,:,i]
@@ -277,15 +286,15 @@ def Scratch():
                 print(i)
         anim = FuncAnimation(fig, update, frames=np.arange(0, 100), interval=1).save("Anim.gif")
         plt.close()
-        
+        '''
         # Non-linear Fitter
         #Fit(FirstImage,bv)
         
 
         plt.figure()
-        plt.imshow(LinFitImageList[:,:,1],cmap="gray")
+        plt.imshow(FirstImage[:,:,0],cmap="gray")
         plt.figure()
-        plt.imshow(ArrayDicom[:,:,0],cmap="gray")
+        plt.imshow( FirstImage[:,:,1],cmap="gray")
         plt.show()
         plt.close()
 
