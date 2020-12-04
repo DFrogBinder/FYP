@@ -194,7 +194,7 @@ def LinFit(DiffImage, bv):
                 S0 = np.asarray(S0).T
                 where_are_NaNs = np.isnan(logS0_ADC)
                 logS0_ADC[where_are_NaNs] = 0
-                return adc,S0
+                return logS0_ADC,S0
 
 def Scratch():
         PathDicom = "D:\IDL\PatientData\DICOM"
@@ -253,21 +253,21 @@ def Scratch():
                 logS0_ADC = np.reshape(logS0_ADC,[172,172])
                 Fitted_Images.append(logS0_ADC)
         Fitted_Images = np.asarray(Fitted_Images)
-
+        '''
         print("Performing Non-Liner fit")
-        for image in tqdm(SortedImages):
+        for image in tqdm(SortedImages): 
                 ImageMatrix = np.transpose(np.asarray(SortedImages[image]))
                 bv = np.asarray(SortedBvals[image])
                 NL_S0,NL_logS0_ADC = Fit(ImageMatrix,bv)
                 NL_logS0_ADC = np.reshape(NL_logS0_ADC,[172,172])
                 NL_Fitted_Images.append(NL_logS0_ADC)
         NL_Fitted_Images = np.asarray(NL_Fitted_Images)
-
+        '''
         # Code to create .gif file of the fitted images
         print("Creting GIF image...")
         fig, ax = plt.subplots(figsize=(5, 8))
         def update(i):
-                im_normed = NL_Fitted_Images[i,:,:]
+                im_normed = Fitted_Images[i,:,:]
                 ax.imshow(im_normed,cmap='gray')
                 ax.set_axis_off()
                 print(i)
