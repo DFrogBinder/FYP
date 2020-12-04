@@ -34,7 +34,7 @@ def Fit(px,bv):
         
         yD = px
         sz = yD.shape
-        yD = np.reshape(yD,[sz[0]*sz[1], 1],order='F')
+        yD = np.reshape(yD,[sz[0]*sz[1], sz[2]],order='F')
         yD = yD.tolist()
         yD = np.asarray(yD)
         yD = yD.astype(np.float64)
@@ -67,33 +67,8 @@ def Fit(px,bv):
                 val = func(xD, *parameterTuple)   
                 return np.sum((row - val) ** 2.0)
         
-        # Linear fitting for initial values 
-        def LinFit(DiffImage, bv):
-                sz = DiffImage.shape  
-                
-                bvalues = bv
-                S = DiffImage
-        
-                S = np.reshape(DiffImage,[sz[0]*sz[1], 1],order='F')
-                
-                S[S == 0] = 1e-16
-                
-                S[S==0]=np.amin(S[S>0])
-                
-                logS = np.log(S)
-                logS = logS.T
-
-                #B = np.vstack((np.ones(bvalues.shape),bvalues))
-                B = np.reshape(bvalues,[1,2])
-                
-                logS0_ADC = np.linalg.lstsq(B,logS,rcond=None)[0].T
-        
-                where_are_NaNs = np.isnan(logS0_ADC)
-                logS0_ADC[where_are_NaNs] = 0
-                return logS0_ADC
-        
         # generate initial parameter values
-        geneticParameters = LinFit(yDLin,xDLin)
+        P1,P2 = LinFit(yDLin,xDLin)
         Error = []
         Rows = []
         ##########################################################################################
@@ -102,10 +77,10 @@ def Fit(px,bv):
                 if c == yD.shape[1]-1:
                         
                                 # curve fit the test data
-                                Guess = geneticParameters[c]
-                                p1 = Guess[0]
-                                p2 = Guess[1]
-                                RowFit,pocv = curve_fit(func, xD, row, p0=[p2,p1],maxfev=ItNum,
+                                p1 = P1.T[c]
+                                p2 = P2[c]
+
+                                RowFit,pocv = curve_fit(func, xD,row, p0=[p1,p1],maxfev=ItNum,
                                                         method='lm',absolute_sigma='True'
                                                         ,jac=grad)              
                                 S0.append(RowFit[1])
@@ -114,25 +89,26 @@ def Fit(px,bv):
                                 modelPredictions = func(xD, *RowFit) 
 
                                 absError = modelPredictions - row
-
+                                '''
                                 SE = np.square(absError) # squared errors
                                 MSE = np.mean(SE) # mean squared errors
                                 RMSE = np.sqrt(MSE) # Root Mean Squared Error, RMSE
                                 Rsquared = 1.0 - (np.var(absError) / np.var(row))
                                 Error.append(Rsquared)
-                                print('\n Row ',c,'out of ',yD.shape[1])
+                                #print('\n Row ',c,'out of ',yD.shape[1])
                                 #print('\n Parameters: ', RowFit)
-                                print('\n Rsquared',Rsquared)
-                                print('\n Sleep')                          
+                                #print('\n Rsquared',Rsquared)
+                                #print('\n Sleep')  
+                                '''                        
                                 c += 1
                                 break
                 else:                        
                                 # curve fit the test data
-                                Guess = geneticParameters[c]
-                                p1 = Guess[0]
-                                p2 = Guess[1]
-                                RowFit,pocv = curve_fit(func,xD,row, p0=[p1,p2],maxfev=ItNum,
-                                                        method='lm',absolute_sigma='True'
+                                p1 = P1.T[c]
+                                p2 = P2[c]
+
+                                RowFit,pocv = curve_fit(func,xD,row, p0=[p1,p1],maxfev=ItNum,
+                                                        method='lm',absolute_sigma='True',jac=grad
                                                     )              
                                 S0.append(RowFit[1])
                                 adc.append(RowFit[0]) 
@@ -140,15 +116,16 @@ def Fit(px,bv):
                                 modelPredictions = func(xD, *RowFit) 
 
                                 absError = modelPredictions - row
-
+                                '''
                                 SE = np.square(absError) # squared errors
                                 MSE = np.mean(SE) # mean squared errors
                                 RMSE = np.sqrt(MSE) # Root Mean Squared Error, RMSE
                                 Rsquared = 1.0 - (np.var(absError) / np.var(row))
                                 Error.append(Rsquared)
-                                print('\n Row ',c,'out of ',yD.shape[1])
+                                #print('\n Row ',c,'out of ',yD.shape[1])
                                 #print('\n Parameters: ', RowFit)
-                                print('\n Rsquared',Rsquared)                        
+                                #print('\n Rsquared',Rsquared)    
+                                '''                    
                                 c += 1
                 
                 
@@ -164,13 +141,13 @@ def Fit(px,bv):
         adc = np.asarray(adc)
         adc = np.reshape(adc,[yDLin.shape[0], yDLin.shape[1]], order='F')
         ##########################################################################################
-
+        
         # Graphics output section
         
         def ModelAndScatterPlot(graphWidth, graphHeight):
                 f = plt.figure(figsize=(graphWidth/100.0, graphHeight/100.0), dpi=100)
                 axes = f.add_subplot(111)
-
+        ''''
         # first the raw data as a scatter plot
                 axes.plot(xD, yD,  'r+')
 
@@ -193,7 +170,7 @@ def Fit(px,bv):
         
         xModel = np.linspace(min(xD), max(xD))
         yModel = func(xModel, *RowFit)
-        
+        '''
         return S0,adc
 def LinFit(DiffImage, bv):
                 sz = DiffImage.shape  
@@ -211,12 +188,13 @@ def LinFit(DiffImage, bv):
 
                 bv = np.reshape(bv,[sz[2],1])
                 logS0_ADC = np.linalg.lstsq(bv,logS,rcond=None)[0].T
-                #linreg = LinearRegression()
-                #results = linreg.fit(bv,logS)
+                S0 = np.linalg.lstsq(bv,logS,rcond=None)[1]
 
+                logS0_ADC = np.asarray(logS0_ADC).T
+                S0 = np.asarray(S0).T
                 where_are_NaNs = np.isnan(logS0_ADC)
                 logS0_ADC[where_are_NaNs] = 0
-                return logS0_ADC
+                return logS0_ADC,S0
 
 def Scratch():
         PathDicom = "D:\IDL\PatientData\DICOM"
@@ -265,20 +243,31 @@ def Scratch():
                                 SortedBvals[key].append(int(image[0x0019,0x100c].value))
                 
         Fitted_Images =[]
+        NL_Fitted_Images=[]
         # Linear fittet
         print("Performing Liner fit")
         for image in tqdm(SortedImages):
                 ImageMatrix = np.transpose(np.asarray(SortedImages[image]))
                 bv = np.asarray(SortedBvals[image])
-                logS0_ADC = LinFit(ImageMatrix,bv)
+                logS0_ADC,S0 = LinFit(ImageMatrix,bv)
                 logS0_ADC = np.reshape(logS0_ADC,[172,172])
                 Fitted_Images.append(logS0_ADC)
         Fitted_Images = np.asarray(Fitted_Images)
+
+        print("Performing Non-Liner fit")
+        for image in tqdm(SortedImages):
+                ImageMatrix = np.transpose(np.asarray(SortedImages[image]))
+                bv = np.asarray(SortedBvals[image])
+                NL_S0,NL_logS0_ADC = Fit(ImageMatrix,bv)
+                NL_logS0_ADC = np.reshape(NL_logS0_ADC,[172,172])
+                NL_Fitted_Images.append(NL_logS0_ADC)
+        NL_Fitted_Images = np.asarray(NL_Fitted_Images)
+
         # Code to create .gif file of the fitted images
         print("Creting GIF image...")
         fig, ax = plt.subplots(figsize=(5, 8))
         def update(i):
-                im_normed = Fitted_Images[i,:,:]
+                im_normed = NL_Fitted_Images[i,:,:]
                 ax.imshow(im_normed,cmap='gray')
                 ax.set_axis_off()
                 print(i)
@@ -288,12 +277,4 @@ def Scratch():
         # Non-linear Fitter
         #Fit(FirstImage,bv)
         
-        '''
-        plt.figure()
-        plt.imshow(FirstImage[:,:,0],cmap="gray")
-        plt.figure()
-        plt.imshow( FirstImage[:,:,1],cmap="gray")
-        plt.show()
-        plt.close()
-        '''
 Scratch()
