@@ -188,10 +188,10 @@ def LinFit(DiffImage, bv):
 
                 bv = np.reshape(bv,[sz[2],1])
                 logS0_ADC = np.linalg.lstsq(bv,logS,rcond=None)[0].T
-                
-                S0 = np.reshape(np.exp(logS0_ADC[:,0]),[sz[0],sz[1]],order='F')
-                adc = - np.reshape(logS0_ADC[:,1],[sz[0], sz[1]],order='F')
-                
+                S0 = np.linalg.lstsq(bv,logS,rcond=None)[1]
+
+                logS0_ADC = np.asarray(logS0_ADC).T
+                S0 = np.asarray(S0).T
                 where_are_NaNs = np.isnan(logS0_ADC)
                 logS0_ADC[where_are_NaNs] = 0
                 return adc,S0
