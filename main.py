@@ -82,7 +82,7 @@ def Fit(px,bv):
                                 p1 = P1.T[c]
                                 p2 = P2[c]
 
-                                RowFit,pocv = curve_fit(func, xD,row, p0=[p1,p1],maxfev=ItNum,
+                                RowFit,pocv = curve_fit(func, xD,row, p0=[p1,p2],maxfev=ItNum,
                                                         method='lm',absolute_sigma='True'
                                                         ,jac=grad)              
                                 S0.append(RowFit[1])
@@ -91,7 +91,7 @@ def Fit(px,bv):
                                 modelPredictions = func(xD, *RowFit) 
 
                                 absError = modelPredictions - row
-                                '''
+                               
                                 SE = np.square(absError) # squared errors
                                 MSE = np.mean(SE) # mean squared errors
                                 RMSE = np.sqrt(MSE) # Root Mean Squared Error, RMSE
@@ -99,9 +99,9 @@ def Fit(px,bv):
                                 Error.append(Rsquared)
                                 #print('\n Row ',c,'out of ',yD.shape[1])
                                 #print('\n Parameters: ', RowFit)
-                                #print('\n Rsquared',Rsquared)
+                                print('\n Rsquared',Rsquared)
                                 #print('\n Sleep')  
-                                '''                        
+                                                    
                                 c += 1
                                 break
                 else:                        
@@ -118,7 +118,7 @@ def Fit(px,bv):
                                 modelPredictions = func(xD, *RowFit) 
 
                                 absError = modelPredictions - row
-                                '''
+                               
                                 SE = np.square(absError) # squared errors
                                 MSE = np.mean(SE) # mean squared errors
                                 RMSE = np.sqrt(MSE) # Root Mean Squared Error, RMSE
@@ -126,8 +126,8 @@ def Fit(px,bv):
                                 Error.append(Rsquared)
                                 #print('\n Row ',c,'out of ',yD.shape[1])
                                 #print('\n Parameters: ', RowFit)
-                                #print('\n Rsquared',Rsquared)    
-                                '''                    
+                                print('\n Rsquared',Rsquared)    
+                                                  
                                 c += 1
                 
                 
@@ -196,6 +196,7 @@ def LinFit(DiffImage, bv):
                 S0 = np.asarray(S0).T
                 where_are_NaNs = np.isnan(logS0_ADC)
                 logS0_ADC[where_are_NaNs] = 0
+<<<<<<< HEAD
                 
                 lr = LinearRegression()
                 lr.fit(bv,logS)
@@ -203,6 +204,9 @@ def LinFit(DiffImage, bv):
                 Y_Pred = lr.predict(bv)
                 
                 return adc,S0
+=======
+                return logS0_ADC,S0
+>>>>>>> c6acc23dfa9d8a5ca81bd8ccc3e5bcd2839cbd69
 
 def Scratch():
         if platform.system() == "Windows":
@@ -265,12 +269,17 @@ def Scratch():
                 logS0_ADC = np.reshape(logS0_ADC,[172,172])
                 Fitted_Images.append(logS0_ADC)
         Fitted_Images = np.asarray(Fitted_Images)
+<<<<<<< HEAD
 
         # Code to create .gif file of the fitted images
+=======
+        
+       # Code to create .gif file of the fitted images
+>>>>>>> c6acc23dfa9d8a5ca81bd8ccc3e5bcd2839cbd69
         print("Creting GIF image...")
         fig, ax = plt.subplots(figsize=(5, 8))
         def update(i):
-                im_normed = NL_Fitted_Images[i,:,:]
+                im_normed = Fitted_Images[i,:,:]
                 ax.imshow(im_normed,cmap='gray')
                 ax.set_axis_off()
                 print(i)
