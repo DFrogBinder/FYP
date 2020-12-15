@@ -196,17 +196,13 @@ def LinFit(DiffImage, bv):
                 S0 = np.asarray(S0).T
                 where_are_NaNs = np.isnan(logS0_ADC)
                 logS0_ADC[where_are_NaNs] = 0
-<<<<<<< HEAD
                 
                 lr = LinearRegression()
                 lr.fit(bv,logS)
                 
                 Y_Pred = lr.predict(bv)
-                
-                return adc,S0
-=======
+
                 return logS0_ADC,S0
->>>>>>> c6acc23dfa9d8a5ca81bd8ccc3e5bcd2839cbd69
 
 def Scratch():
         if platform.system() == "Windows":
@@ -269,13 +265,8 @@ def Scratch():
                 logS0_ADC = np.reshape(logS0_ADC,[172,172])
                 Fitted_Images.append(logS0_ADC)
         Fitted_Images = np.asarray(Fitted_Images)
-<<<<<<< HEAD
-
-        # Code to create .gif file of the fitted images
-=======
         
        # Code to create .gif file of the fitted images
->>>>>>> c6acc23dfa9d8a5ca81bd8ccc3e5bcd2839cbd69
         print("Creting GIF image...")
         fig, ax = plt.subplots(figsize=(5, 8))
         def update(i):
