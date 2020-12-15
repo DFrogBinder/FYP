@@ -3,7 +3,6 @@ import os
 import matplotlib.pyplot as plt 
 import pydicom
 import warnings
-import png
 import pandas as pd 
 import numpy.ma as ma
 import scipy.misc
@@ -17,6 +16,8 @@ from time import process_time, sleep
 from matplotlib.animation import FuncAnimation
 from tqdm import tqdm
 
+import pandas as pd  # To read data
+from sklearn.linear_model import LinearRegression
 
 def Model(x, S0,bv): 
         return  S0*np.exp(bv * (-x))
@@ -147,7 +148,7 @@ def Fit(px,bv):
         def ModelAndScatterPlot(graphWidth, graphHeight):
                 f = plt.figure(figsize=(graphWidth/100.0, graphHeight/100.0), dpi=100)
                 axes = f.add_subplot(111)
-        ''''
+        
         # first the raw data as a scatter plot
                 axes.plot(xD, yD,  'r+')
 
@@ -170,7 +171,7 @@ def Fit(px,bv):
         
         xModel = np.linspace(min(xD), max(xD))
         yModel = func(xModel, *RowFit)
-        '''
+        
         return S0,adc
 def LinFit(DiffImage, bv):
                 sz = DiffImage.shape  
@@ -194,6 +195,12 @@ def LinFit(DiffImage, bv):
                 S0 = np.asarray(S0).T
                 where_are_NaNs = np.isnan(logS0_ADC)
                 logS0_ADC[where_are_NaNs] = 0
+                
+                lr = LinearRegression()
+                lr.fit(bv,logS)
+                
+                Y_Pred = lr.predict(X)
+                
                 return adc,S0
 
 def Scratch():
@@ -254,15 +261,6 @@ def Scratch():
                 Fitted_Images.append(logS0_ADC)
         Fitted_Images = np.asarray(Fitted_Images)
 
-        print("Performing Non-Liner fit")
-        for image in tqdm(SortedImages):
-                ImageMatrix = np.transpose(np.asarray(SortedImages[image]))
-                bv = np.asarray(SortedBvals[image])
-                NL_S0,NL_logS0_ADC = Fit(ImageMatrix,bv)
-                NL_logS0_ADC = np.reshape(NL_logS0_ADC,[172,172])
-                NL_Fitted_Images.append(NL_logS0_ADC)
-        NL_Fitted_Images = np.asarray(NL_Fitted_Images)
-
         # Code to create .gif file of the fitted images
         print("Creting GIF image...")
         fig, ax = plt.subplots(figsize=(5, 8))
@@ -274,7 +272,5 @@ def Scratch():
         anim = FuncAnimation(fig, update, frames=np.arange(0, 29), interval=1).save("Anim.gif")
         plt.close()
         
-        # Non-linear Fitter
-        #Fit(FirstImage,bv)
         
 Scratch()
