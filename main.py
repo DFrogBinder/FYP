@@ -6,6 +6,7 @@ import warnings
 import pandas as pd 
 import numpy.ma as ma
 import scipy.misc
+import platform 
 from sklearn.linear_model import LinearRegression
 from PIL import Image as im
 from pydicom import dcmread
@@ -199,12 +200,16 @@ def LinFit(DiffImage, bv):
                 lr = LinearRegression()
                 lr.fit(bv,logS)
                 
-                Y_Pred = lr.predict(X)
+                Y_Pred = lr.predict(bv)
                 
                 return adc,S0
 
 def Scratch():
-        PathDicom = "D:\IDL\PatientData\DICOM"
+        if platform.system() == "Windows":
+                PathDicom = "D:\IDL\PatientData\DICOM"
+        elif platform.system() == "Darwin":
+                PathDicom = "/Users/boyanivanov/Desktop/FYP/DICOM"
+        
         lstFilesDCM = []  # create an empty list
         for dirName, subdirList, fileList in os.walk(PathDicom):
                 for filename in fileList:
