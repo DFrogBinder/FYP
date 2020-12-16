@@ -2,22 +2,16 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt 
 import pydicom
-import warnings
 import pandas as pd 
 import numpy.ma as ma
-import scipy.misc
 import platform 
 from sklearn.linear_model import LinearRegression
 from PIL import Image as im
 from pydicom import dcmread
 from pydicom.data import get_testdata_file
-from scipy.optimize import curve_fit
 from pathlib import Path
-from time import process_time, sleep
 from matplotlib.animation import FuncAnimation
 from tqdm import tqdm
-
-import pandas as pd  # To read data
 from sklearn.linear_model import LinearRegression
 
 def LinFit(DiffImage, bv):
@@ -44,7 +38,19 @@ def LinFit(DiffImage, bv):
                 logS0_ADC[where_are_NaNs] = 0
                 
                 return logS0_ADC,S0,S
-
+def LinPlot(X,Y):
+        lr = LinearRegression()
+        lr.fit(X.reshape(-1,1),Y.T)        
+        Y_Pred = lr.predict(X.reshape(-1,1))
+        
+        ImagePixel = np.reshape(Y,[172,172,30])[80,80,:]
+        Y_Pred = np.reshape(Y_Pred,[30,172,172])
+        
+        plt.scatter(X,ImagePixel)
+        plt.plot(X,Y_Pred[:,80,80],color='red')
+        plt.show()
+        
+        
 def Scratch():
         if platform.system() == "Windows":
                 PathDicom = "D:\IDL\PatientData\DICOM"
@@ -107,16 +113,7 @@ def Scratch():
                 Fitted_Images.append(logS0_ADC)
         Fitted_Images = np.asarray(Fitted_Images)
         
-        lr = LinearRegression()
-        lr.fit(bv.reshape(-1,1),S.T)        
-        Y_Pred = lr.predict(bv.reshape(-1,1))
-        
-        ImagePixel = ImageMatrix[80,80,:]
-        Y_Pred = np.reshape(Y_Pred,[30,172,172])
-        plt.scatter(bv,ImagePixel)
-        plt.plot(bv,Y_Pred[:,80,80],color='red')
-        plt.show()
-        
+        #LinPlot(bv,S)
         
         
        # Code to create .gif file of the fitted images
@@ -126,7 +123,7 @@ def Scratch():
                 im_normed = Fitted_Images[i,:,:]
                 ax.imshow(im_normed,cmap='gray')
                 ax.set_axis_off()
-                print(i)
+                print("Exporting Frame: "+str(i))
         anim = FuncAnimation(fig, update, frames=np.arange(0, 29), interval=1).save("Anim.gif")
         plt.close()
         
