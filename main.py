@@ -113,7 +113,7 @@ def Scratch():
                 Fitted_Images.append(logS0_ADC)
         Fitted_Images = np.asarray(Fitted_Images)
         
-        #LinPlot(bv,S)
+        LinPlot(bv,S)
         
         
        # Code to create .gif file of the fitted images
