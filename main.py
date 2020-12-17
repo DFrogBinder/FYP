@@ -48,8 +48,11 @@ def LinPlot(X,Y):
         
         plt.scatter(X,ImagePixel)
         plt.plot(X,Y_Pred[:,80,80],color='red')
+        plt.title("Linear Fit of the data for a single pixel")
+        plt.ylabel("Signal Intesity")
+        plt.xlabel('Bvalues (s/mm^2)')
         plt.show()
-        
+
         
 def Scratch():
         if platform.system() == "Windows":
