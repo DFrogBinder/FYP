@@ -55,6 +55,7 @@ def LinPlot(X,Y):
 
         
 def Scratch():
+        # Detects operating system and sets the paths to the DICOMs
         if platform.system() == "Windows":
                 PathDicom = "D:\IDL\PatientData\DICOM"
         elif platform.system() == "Darwin":
@@ -100,12 +101,11 @@ def Scratch():
                 SortedImages[key]=[]
                 SortedBvals[key]=[]
                 for image in Data:
-                        if float(image.SliceLocation)== location:
+                        if float(image.SliceLocation) == location:
                                 SortedImages[key].append(image.pixel_array)
                                 SortedBvals[key].append(int(image[0x0019,0x100c].value))
                 
         Fitted_Images =[]
-        NL_Fitted_Images=[]
         # Linear fittet
         print("Performing Liner fit")
         for image in tqdm(SortedImages):
@@ -116,6 +116,7 @@ def Scratch():
                 Fitted_Images.append(logS0_ADC)
         Fitted_Images = np.asarray(Fitted_Images)
         
+        # Plot the linear fit
         LinPlot(bv,S)
         
         
