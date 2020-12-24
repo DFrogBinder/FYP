@@ -14,6 +14,8 @@ from matplotlib.animation import FuncAnimation
 from tqdm import tqdm
 from sklearn.linear_model import LinearRegression
 
+os.system("conda activate FYP")
+
 def LinFit(DiffImage, bv):
                 sz = DiffImage.shape  
                 
@@ -83,6 +85,7 @@ def Scratch():
         Data=[]
         SortedImages = {}
         SortedBvals = {}
+        SortedDirection = []
         #loop through all the DICOM files
         print("Loading Data...")
         for filenameDCM in tqdm(lstFilesDCM):
@@ -91,6 +94,7 @@ def Scratch():
                 Data.append(ds)
                 locationMatrix.append(ds.SliceLocation)
                 ArrayDicom[:, :, lstFilesDCM.index(filenameDCM)] = ds.pixel_array
+                
             
         locationMatrix = np.asarray(locationMatrix) 
         locationMatrix = np.unique(locationMatrix)
@@ -104,6 +108,12 @@ def Scratch():
                         if float(image.SliceLocation) == location:
                                 SortedImages[key].append(image.pixel_array)
                                 SortedBvals[key].append(int(image[0x0019,0x100c].value))
+                                try:
+                                        SortedDirection.append(ds[0x0019,0x100e].value)
+                                except:
+                                        continue
+                                
+
                 
         Fitted_Images =[]
         # Linear fittet
@@ -121,7 +131,7 @@ def Scratch():
         
         
        # Code to create .gif file of the fitted images
-        print("Creting GIF image...")
+        print("Creating GIF image...")
         fig, ax = plt.subplots(figsize=(5, 8))
         def update(i):
                 im_normed = Fitted_Images[i,:,:]
