@@ -16,10 +16,10 @@ from sklearn.linear_model import LinearRegression
 
 os.system("conda activate FYP")
 
-def LinFit(DiffImage, bv):
+def LinFit(DiffImage, bv, g):
                 sz = DiffImage.shape  
                 
-                bvalues = bv
+                bvalues = bv * g
                 S = DiffImage
                 # Flattens the image into a vector
                 S = np.reshape(DiffImage,[sz[0]*sz[1], sz[2]],order='F')
@@ -99,7 +99,7 @@ def Scratch():
         locationMatrix = np.asarray(locationMatrix) 
         locationMatrix = np.unique(locationMatrix)
         
-        print("Sorting Images")
+        print("Sorting Data")
         for index,location in zip(tqdm(range(len(locationMatrix)-1)),locationMatrix):
                 key = "Position_"+str(index)
                 SortedImages[key]=[]
@@ -109,10 +109,8 @@ def Scratch():
                         if float(image.SliceLocation) == location:
                                 SortedImages[key].append(image.pixel_array)
                                 SortedBvals[key].append(int(image[0x0019,0x100c].value))
-                                try:
-                                        SortedDirection.append(ds[0x0019,0x100e].value)
-                                except:
-                                        continue
+                                SortedDirection[key].append(ds[0x0019,0x100e].value)
+
                                 
 
                 
@@ -122,7 +120,8 @@ def Scratch():
         for image in tqdm(SortedImages):
                 ImageMatrix = np.transpose(np.asarray(SortedImages[image]))
                 bv = np.asarray(SortedBvals[image])
-                logS0_ADC,S0,S= LinFit(ImageMatrix,bv)
+                g = np.asarray(SortedDirection[image])
+                logS0_ADC,S0,S= LinFit(ImageMatrix,bv,g)
                 logS0_ADC = np.reshape(logS0_ADC,[172,172])
                 Fitted_Images.append(logS0_ADC)
         Fitted_Images = np.asarray(Fitted_Images)
