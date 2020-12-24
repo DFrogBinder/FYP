@@ -85,7 +85,7 @@ def Scratch():
         Data=[]
         SortedImages = {}
         SortedBvals = {}
-        SortedDirection = []
+        SortedDirection = {}
         #loop through all the DICOM files
         print("Loading Data...")
         for filenameDCM in tqdm(lstFilesDCM):
@@ -104,6 +104,7 @@ def Scratch():
                 key = "Position_"+str(index)
                 SortedImages[key]=[]
                 SortedBvals[key]=[]
+                SortedDirection[key] = []
                 for image in Data:
                         if float(image.SliceLocation) == location:
                                 SortedImages[key].append(image.pixel_array)
