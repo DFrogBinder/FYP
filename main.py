@@ -19,7 +19,7 @@ os.system("conda activate FYP")
 def LinFit(DiffImage, bv, g):
                 sz = DiffImage.shape  
                 
-                bvalues = bv * g
+                bvalues = bv
                 S = DiffImage
                 # Flattens the image into a vector
                 S = np.reshape(DiffImage,[sz[0]*sz[1], sz[2]],order='F')
@@ -32,10 +32,11 @@ def LinFit(DiffImage, bv, g):
 
                 bv = np.reshape(bv,[sz[2],1])
                 logS0_ADC = np.linalg.lstsq(bv,logS,rcond=None)[0].T
+
                 S0 = np.linalg.lstsq(bv,logS,rcond=None)[1]
 
                 logS0_ADC = np.asarray(logS0_ADC).T
-                S0 = np.asarray(S0).T
+                S0 = np.asarray(S0).T  
                 where_are_NaNs = np.isnan(logS0_ADC)
                 logS0_ADC[where_are_NaNs] = 0
                 
@@ -80,12 +81,19 @@ def Scratch():
 
         # The array is sized based on 'ConstPixelDims'
         ArrayDicom = np.zeros(ConstPixelDims, dtype=RefDs.pixel_array.dtype)
+
+        # Initialize some variables 
         Bvalues=[]
         locationMatrix = []
         Data=[]
+        
         SortedImages = {}
         SortedBvals = {}
         SortedDirection = {}
+
+        TestList = []
+        TestList2 = []
+
         #loop through all the DICOM files
         print("Loading Data...")
         for filenameDCM in tqdm(lstFilesDCM):
@@ -93,9 +101,13 @@ def Scratch():
                 ds = pydicom.read_file(filenameDCM)
                 Data.append(ds)
                 locationMatrix.append(ds.SliceLocation)
-                ArrayDicom[:, :, lstFilesDCM.index(filenameDCM)] = ds.pixel_array
+                try:
+                        TestList.append(ds[0x0019,0x100d].value)
+                        TestList2.append(ds[0x0019,0x1027].value)
+                except:
+                        continue
+
                 
-            
         locationMatrix = np.asarray(locationMatrix) 
         locationMatrix = np.unique(locationMatrix)
         
@@ -104,12 +116,13 @@ def Scratch():
                 key = "Position_"+str(index)
                 SortedImages[key]=[]
                 SortedBvals[key]=[]
-                SortedDirection[key] = []
+                SortedDirection[key]=[]
                 for image in Data:
                         if float(image.SliceLocation) == location:
                                 SortedImages[key].append(image.pixel_array)
                                 SortedBvals[key].append(int(image[0x0019,0x100c].value))
-                                SortedDirection[key].append(ds[0x0019,0x100e].value)
+                        
+                        
 
                                 
 
@@ -143,3 +156,7 @@ def Scratch():
         
         
 Scratch()
+
+
+
+ 
