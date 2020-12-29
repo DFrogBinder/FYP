@@ -18,6 +18,17 @@ from tqdm import tqdm
 from sklearn.linear_model import LinearRegression
 
 os.system("conda activate FYP")
+def GIF(Images):
+        # Code to create .gif file of the fitted images
+        print("Creating GIF image...")
+        fig, ax = plt.subplots(figsize=(5, 8))
+        def update(i):
+                im_normed = Images[i,:,:]
+                ax.imshow(im_normed,cmap='gray')
+                ax.set_axis_off()
+                print("Exporting Frame: "+str(i))
+        anim = FuncAnimation(fig, update, frames=np.arange(0, 29), interval=1).save("Anim.gif")
+        plt.close()
 
 def LinFit(DiffImage, bv, g):
                 sz = DiffImage.shape  
@@ -152,6 +163,7 @@ def Scratch():
         
         # Plot the linear fit
         #LinPlot(bv,S)
+        GIF(Fitted_Images)
 
         if os.path.exists(os.path.join(os.getcwd(),'Images')):
                 print("Image Folder Already Exists")
@@ -169,16 +181,7 @@ def Scratch():
                         cv2.imwrite(name, Fitted_Images[image,:,:]*10000)
         
         
-       # Code to create .gif file of the fitted images
-        print("Creating GIF image...")
-        fig, ax = plt.subplots(figsize=(5, 8))
-        def update(i):
-                im_normed = Fitted_Images[i,:,:]
-                ax.imshow(im_normed,cmap='gray')
-                ax.set_axis_off()
-                print("Exporting Frame: "+str(i))
-        anim = FuncAnimation(fig, update, frames=np.arange(0, 29), interval=1).save("Anim.gif")
-        plt.close()
+       
         
         
 Scratch()
