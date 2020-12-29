@@ -5,6 +5,8 @@ import pydicom
 import pandas as pd 
 import numpy.ma as ma
 import platform 
+import SimpleITK as sitk
+
 from sklearn.linear_model import LinearRegression
 from PIL import Image as im
 from pydicom import dcmread
@@ -55,7 +57,24 @@ def LinPlot(X,Y):
         plt.ylabel("Signal Intesity")
         plt.xlabel('Bvalues (s/mm^2)')
         plt.show()
+def Register(ImagePopulation):
+        # Concatenate the ND images into one (N+1)D image
+        population = ImagePopulation
+        vectorOfImages = sitk.VectorOfImage()
 
+        for filename in population:
+                vectorOfImages.push_back(sitk.ReadImage(filename))
+
+        image = sitk.JoinSeries(vectorOfImages)
+
+        # Register
+        elastixImageFilter = sitk.ElastixImageFilter()
+        elastixImageFilter.SetFixedImage(image)
+        elastixImageFilter.SetMovingImage(image)
+        elastixImageFilter.SetParameterMap(sitk.GetDefaultParameterMap('groupwise'))
+        elastixImageFilter.Execute()
+        
+        return image
         
 def Scratch():
         # Detects operating system and sets the paths to the DICOMs
@@ -101,13 +120,7 @@ def Scratch():
                 ds = pydicom.read_file(filenameDCM)
                 Data.append(ds)
                 locationMatrix.append(ds.SliceLocation)
-                try:
-                        TestList.append(ds[0x0019,0x100d].value)
-                        TestList2.append(ds[0x0019,0x1027].value)
-                except:
-                        continue
-
-                
+            
         locationMatrix = np.asarray(locationMatrix) 
         locationMatrix = np.unique(locationMatrix)
         
@@ -121,12 +134,9 @@ def Scratch():
                         if float(image.SliceLocation) == location:
                                 SortedImages[key].append(image.pixel_array)
                                 SortedBvals[key].append(int(image[0x0019,0x100c].value))
+                                SortedDirection[key].append(ds[0x0019,0x100e].value)
                         
-                        
-
-                                
-
-                
+           
         Fitted_Images =[]
         # Linear fittet
         print("Performing Liner fit")
