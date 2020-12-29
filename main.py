@@ -17,6 +17,9 @@ from matplotlib.animation import FuncAnimation
 from tqdm import tqdm
 from sklearn.linear_model import LinearRegression
 
+#TODO: Update Broad.yml file to include simpleITK and openCV2
+
+
 os.system("conda activate FYP")
 def GIF(Images):
         # Code to create .gif file of the fitted images
@@ -163,7 +166,9 @@ def Scratch():
         
         # Plot the linear fit
         #LinPlot(bv,S)
-        GIF(Fitted_Images)
+
+        #Creates .gif file of the images
+        #GIF(Fitted_Images)
 
         if os.path.exists(os.path.join(os.getcwd(),'Images')):
                 print("Image Folder Already Exists")
