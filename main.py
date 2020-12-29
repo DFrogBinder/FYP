@@ -6,6 +6,7 @@ import pandas as pd
 import numpy.ma as ma
 import platform 
 import SimpleITK as sitk
+import cv2
 
 from sklearn.linear_model import LinearRegression
 from PIL import Image as im
@@ -150,7 +151,22 @@ def Scratch():
         Fitted_Images = np.asarray(Fitted_Images)
         
         # Plot the linear fit
-        LinPlot(bv,S)
+        #LinPlot(bv,S)
+
+        if os.path.exists(os.path.join(os.getcwd(),'Images')):
+                print("Image Folder Already Exists")
+                print("Saving Images to Folder...")
+                for image in range(len(Fitted_Images[:,1,1])):
+                        name = os.path.join(os.path.join(os.getcwd(),'Images'),str(image)+".png")
+                        cv2.imwrite(name, Fitted_Images[image,:,:]*10000)
+        else:
+                print("Image Foleder Not Found!")
+                print("Saving Images to Folder...")
+                os.mkdir(os.path.join(os.getcwd(),'Images'))
+                print("Saving Images...")
+                for image in range(len(Fitted_Images[:,1,1])):
+                        name = os.path.join(os.path.join(os.getcwd(),'Images'),str(image)+".png")
+                        cv2.imwrite(name, Fitted_Images[image,:,:]*10000)
         
         
        # Code to create .gif file of the fitted images
