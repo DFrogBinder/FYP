@@ -83,7 +83,7 @@ def Register(ImagePopulation):
         image = sitk.JoinSeries(vectorOfImages)
 
         # Register
-        elastixImageFilter = sitk.ElastixImageFilter()
+        elastixImageFilter = sitk.SimpleElastix()
         elastixImageFilter.SetFixedImage(image)
         elastixImageFilter.SetMovingImage(image)
         elastixImageFilter.SetParameterMap(sitk.GetDefaultParameterMap('groupwise'))
@@ -185,8 +185,13 @@ def Scratch():
                         name = os.path.join(os.path.join(os.getcwd(),'Images'),str(image)+".png")
                         cv2.imwrite(name, Fitted_Images[image,:,:]*10000)
         
-        
-       
+        ImageFiles = os.listdir(os.path.join(os.getcwd(),'Images'))
+        RegImagePath=[]
+        for File in ImageFiles:
+                path = os.path.join(os.path.join(os.getcwd(),'Images'), File)
+                RegImagePath.append(path)
+        reg = Register(RegImagePath)
+        print("Done")
         
         
 Scratch()
