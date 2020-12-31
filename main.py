@@ -20,7 +20,6 @@ from sklearn.linear_model import LinearRegression
 #TODO: Update Broad.yml file to include simpleITK and openCV2
 
 
-os.system("conda activate FYP")
 def GIF(Images):
         # Code to create .gif file of the fitted images
         print("Creating GIF image...")
@@ -97,6 +96,8 @@ def Scratch():
                 PathDicom = "D:\IDL\PatientData\DICOM"
         elif platform.system() == "Darwin":
                 PathDicom = "/Users/boyanivanov/Desktop/FYP/DICOM"
+        elif platform.system() == "Linux":
+                PathDicom = "/home/quaz/Desktop/FYP/DICOM"
         
         lstFilesDCM = []  # create an empty list
         for dirName, subdirList, fileList in os.walk(PathDicom):
@@ -149,7 +150,10 @@ def Scratch():
                         if float(image.SliceLocation) == location:
                                 SortedImages[key].append(image.pixel_array)
                                 SortedBvals[key].append(int(image[0x0019,0x100c].value))
-                                SortedDirection[key].append(ds[0x0019,0x100e].value)
+                                if key in SortedDirection.keys():
+                                        pass
+                                else:
+                                        SortedDirection[key].append(ds[0x0019,0x100e].value)
                         
            
         Fitted_Images =[]
