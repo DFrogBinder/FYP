@@ -83,7 +83,7 @@ def Register(ImagePopulation):
         image = sitk.JoinSeries(vectorOfImages)
 
         # Register
-        elastixImageFilter = sitk.SimpleElastix()
+        elastixImageFilter = sitk.ElastixImageFilter()
         elastixImageFilter.SetFixedImage(image)
         elastixImageFilter.SetMovingImage(image)
         elastixImageFilter.SetParameterMap(sitk.GetDefaultParameterMap('groupwise'))
@@ -94,7 +94,7 @@ def Register(ImagePopulation):
 def Scratch():
         # Detects operating system and sets the paths to the DICOMs
         if platform.system() == "Windows":
-                PathDicom = "D:\IDL\PatientData\DICOM"
+                PathDicom = "D:\IDL\PatientData_VM\DICOM"
         elif platform.system() == "Darwin":
                 PathDicom = "/Users/boyanivanov/Desktop/FYP/DICOM"
         
@@ -127,6 +127,13 @@ def Scratch():
 
         TestList = []
         TestList2 = []
+        for filenameDCM in tqdm(lstFilesDCM):
+                # read the file
+                ds = pydicom.read_file(filenameDCM)
+                try:
+                        Data.append(ds[0x0019,0x100c])
+                except:
+                        os.remove(filenameDCM)
 
         #loop through all the DICOM files
         print("Loading Data...")
@@ -165,7 +172,7 @@ def Scratch():
         Fitted_Images = np.asarray(Fitted_Images)
         
         # Plot the linear fit
-        #LinPlot(bv,S)
+        # LinPlot(bv,S)
 
         #Creates .gif file of the images
         #GIF(Fitted_Images)
