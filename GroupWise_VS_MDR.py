@@ -1200,16 +1200,16 @@ class MoCoMo(GeneralClass):
 #                  " Note that if DCE is to be processed as well it is exepected"
 #                  " to find a folder with format AIF -> patient ### -> AIF__2C Filtration__Curve.txt"
 #                  " that contains the AIFs for each patient, the parent folder AIF is "
-#                  " expected to be found inside DATA_PATH")
-    
-#assert os.path.exists(DATA_PATH), "Please provide a valid path for the .zip folders"
+#                  " expected to be found inside DATA_PATH: ")
+DATA_PATH = "/home/quaz/Desktop/FYP/DICOM"
+assert os.path.exists(DATA_PATH), "Please provide a valid path for the .zip folders"
 
 # The user will choose to perform either Group-wise (Huizinga et al)
 # or MoCoMo Registration     
 #TODO: Uncomment the following
-#TECHNIQUE = input("Please insert the number 1 for Group-wise Registration "
-#                  "or number 2 for MoCoMo Registration ")
-#assert TECHNIQUE in ['1', '2'], "Please insert a proper value for the motion correction technique that will be performed."
+TECHNIQUE = input("Please insert the number 1 for Group-wise Registration "
+                  "or number 2 for MoCoMo Registration ")
+assert TECHNIQUE in ['1', '2'], "Please insert a proper value for the motion correction technique that will be performed."
 
 if __name__ == '__main__':
     # The sequences to be motion corrected
@@ -1231,16 +1231,16 @@ if __name__ == '__main__':
     
     ### MAIN:
     # Unzip to extract Leeds_Patients_ ... folders
-    DATA_PATH = r'C:\Users\umfta\Desktop\Patients_2' 
-    AIFs_PATH = DATA_PATH + r'\AIFs'
-    TECHNIQUE = 1
+    #DATA_PATH = r'C:\Users\umfta\Desktop\Patients_2' 
+    #AIFs_PATH = DATA_PATH + r'\AIFs'
+    #TECHNIQUE = 1
     
     
     if TECHNIQUE == 1:
         technique_str = 'GroupWise_Huizinga'
     elif TECHNIQUE == 2:
         technique_str = 'MoCoMo'
-    #unzip_patients(DATA_PATH)
+    unzip_patients(DATA_PATH)
     
     # Reorganizing files per sequence:
     for sequence in SEQUENCES:
@@ -1266,7 +1266,7 @@ if __name__ == '__main__':
             if not dcm_files_found:
                 dcm_files_found = glob.glob("*.ima")
             #TODO: Uncomment this
-            #assert len(dcm_files_found)==num_of_files#, "Did not find the expect number of images in %s " %os.getcwd()
+            assert len(dcm_files_found)==num_of_files#, "Did not find the expect number of images in %s " %os.getcwd()
             
             # Create slice_folders for the images to be arranged: 
             create_slice_folders(sequence, slices)
