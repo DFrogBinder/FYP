@@ -59,7 +59,7 @@ def unzip_patients(path):
     
     # Deleting the parent folders in order to keep only the Leeds_Patient_... 
     # folders
-    
+
     os.chdir(path)
     parent_folders = os.listdir()
     for folder in parent_folders:
@@ -68,7 +68,7 @@ def unzip_patients(path):
             shutil.move(path+'\\'+folder+'\\'+inner_folder, path+'\\'+inner_folder)
         os.chdir('..')
         shutil.rmtree(folder)
-    
+
             
 def create_slice_folders(sequence, slices):
     """
@@ -102,7 +102,10 @@ def move_images_to_slice_folders(sequence, dcm_files_found, slices, num_of_files
         for check_slice in reversed(range(1, slices+1)):
             if (idx - check_slice) % slices == 0:
                 slice_folder = sequence + '_slice_' + str(check_slice)
-                shutil.move(images_path+'\\'+image_name, images_path+'\\'+slice_folder+'\\'+image_name)
+                shutil.move(os.path.join(images_path,image_name), os.path.join(images_path,slice_folder,image_name))
+    if platform.system() == "Darwin":
+        if os.path.exists(r'./.DS_Store'):
+            os.remove(r'./.DS_Store')
     assert len(os.listdir())==slices, "Some images were not re-arranged to slice_folders check %s" %images_path 
    
 def load_mhd3d(three_d_mhd_path):
@@ -1248,7 +1251,7 @@ if __name__ == '__main__':
         technique_str = 'GroupWise_Huizinga'
     elif TECHNIQUE == 2:
         technique_str = 'MoCoMo'
-    unzip_patients(DATA_PATH)
+    #unzip_patients(DATA_PATH)
     
     # Reorganizing files per sequence:
     for sequence in SEQUENCES:
@@ -1265,9 +1268,9 @@ if __name__ == '__main__':
             #TODO: Scratch the following line completely
             #patient_folder = 'Leeds_Patient_4128010'
             # Change directory to find the sequence images:
-            sequence_images_path = patient_folder + '\\' + str(folder) + '\\DICOM'
+            sequence_images_path = os.path.join(patient_folder,str(folder),'DICOM')
             print(sequence_images_path)
-            os.chdir(DATA_PATH + '\\' + sequence_images_path)
+            os.chdir(os.path.join(DATA_PATH,sequence_images_path))
             
             # Make sure that no acquisition is missing:
             dcm_files_found = glob.glob("*.dcm")
@@ -1293,7 +1296,7 @@ if __name__ == '__main__':
                 elif sequence == 'DTI' and current_slice not in [sequence + '_slice_15']:
                     continue
                 
-                slice_path = DATA_PATH + '\\' + sequence_images_path + '\\' + current_slice
+                slice_path = os.path.join(DATA_PATH,sequence_images_path,current_slice)
                 
                 if TECHNIQUE == 1:
                     
@@ -1309,7 +1312,7 @@ if __name__ == '__main__':
                    
                 elif TECHNIQUE ==2:
                      # Create needed folders:
-                    MoCoMo_slice_path = DATA_PATH + '\\' + sequence_images_path + '\\' + current_slice + '_' + technique_str
+                    MoCoMo_slice_path = os.path.join(DATA_PATH,sequence_images_path,current_slice + '_' + technique_str)
                     create_MoCoMo_folders(MoCoMo_slice_path)
                     
                     # Perform MoCoMo:
