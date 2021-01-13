@@ -6,10 +6,7 @@ This is a temporary script file.
 ###############################################################################
 ### IMPORTS:
 
-from collections import OrderedDict
-import glob
-from zipfile import ZipFile
-from tqdm import tqdm
+import platform
 import os
 import shutil
 import skimage.io as io
@@ -18,14 +15,18 @@ import SimpleITK as sitk
 import subprocess
 import sys  
 import pydicom
-from scipy.optimize import curve_fit
+import glob
 import time
 import cv2
-from numpy import trapz
-from scipy.signal import argrelextrema
 import copy
 import pandas as pd
 import multiprocessing as mp
+from collections import OrderedDict
+from zipfile import ZipFile
+from tqdm import tqdm
+from scipy.optimize import curve_fit
+from numpy import trapz
+from scipy.signal import argrelextrema
 from scipy.stats import iqr
 np.set_printoptions(threshold=sys.maxsize)
 
@@ -58,6 +59,7 @@ def unzip_patients(path):
     
     # Deleting the parent folders in order to keep only the Leeds_Patient_... 
     # folders
+    
     os.chdir(path)
     parent_folders = os.listdir()
     for folder in parent_folders:
@@ -66,6 +68,7 @@ def unzip_patients(path):
             shutil.move(path+'\\'+folder+'\\'+inner_folder, path+'\\'+inner_folder)
         os.chdir('..')
         shutil.rmtree(folder)
+    
             
 def create_slice_folders(sequence, slices):
     """
@@ -1201,16 +1204,21 @@ class MoCoMo(GeneralClass):
 #                  " to find a folder with format AIF -> patient ### -> AIF__2C Filtration__Curve.txt"
 #                  " that contains the AIFs for each patient, the parent folder AIF is "
 #                  " expected to be found inside DATA_PATH: ")
-DATA_PATH = "/home/quaz/Desktop/FYP/DICOM"
+
+# Detects operating system and sets the paths to the DICOMs
+if platform.system() == "Windows":
+        DATA_PATH = "D:\IDL\PatientData_VM\DICOM"
+elif platform.system() == "Darwin":
+        DATA_PATH = "/Users/boyanivanov/Desktop/FYP/DICOM"
+elif platform.system() == "Linux":
+        DATA_PATH = "/home/quaz/Desktop/FYP/DICOM"
+
 assert os.path.exists(DATA_PATH), "Please provide a valid path for the .zip folders"
 
 # The user will choose to perform either Group-wise (Huizinga et al)
 # or MoCoMo Registration     
 #TODO: Uncomment the following
-TECHNIQUE = input("Please insert the number 1 for Group-wise Registration "
-                  "or number 2 for MoCoMo Registration ")
-assert TECHNIQUE in ['1', '2'], "Please insert a proper value for the motion correction technique that will be performed."
-
+TECHNIQUE = 2
 if __name__ == '__main__':
     # The sequences to be motion corrected
     POOL_OF_SEQUENCES = ['T1', 'DTI', 'DCE']
