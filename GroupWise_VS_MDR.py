@@ -193,9 +193,10 @@ def find_and_sort_paths(slice_path, suffix):
     It finds all paths in 'slice_path' ending with 'suffix' and gets them sorted
     Attention: in case .dcm is given but no folder ending in .dcm is found it searches for .ima
     """
-    slice_dcms = glob.glob(slice_path + '\*' + suffix)
+    
+    slice_dcms = glob.glob(os.path.join(slice_path,'*'+suffix))
     if not slice_dcms and suffix=='.dcm':
-        slice_dcms = glob.glob(slice_path + '\*' + '.ima')
+        slice_dcms = glob.glob(os.path.join(slice_path,'*'+suffix))
     indexes = []
     for dcm in slice_dcms:
         if dcm.lower().endswith('.dcm'):
@@ -215,12 +216,12 @@ def create_MoCoMo_folders(MoCoMo_slice_path):
     """
     if not os.path.isdir(MoCoMo_slice_path):
         os.mkdir(MoCoMo_slice_path)
-    if not os.path.isdir(MoCoMo_slice_path+'\\Original'):
-        os.mkdir(MoCoMo_slice_path+'\\Original')
-    if not os.path.isdir(MoCoMo_slice_path+'\\Fitted'):
-        os.mkdir(MoCoMo_slice_path+'\\Fitted')
-    if not os.path.isdir(MoCoMo_slice_path+'\\BSplines_Registered_1'):
-        os.mkdir(MoCoMo_slice_path+'\\BSplines_Registered_1')
+    if not os.path.isdir(os.path.join(MoCoMo_slice_path,'Original')):
+        os.mkdir(os.path.join(MoCoMo_slice_path,'Original'))
+    if not os.path.isdir(os.path.join(MoCoMo_slice_path,'Fitted')):
+        os.mkdir(os.path.join(MoCoMo_slice_path,'Fitted'))
+    if not os.path.isdir(os.path.join(MoCoMo_slice_path,'BSplines_Registered_1')):
+        os.mkdir(os.path.join(MoCoMo_slice_path,'BSplines_Registered_1'))
     
 def handle_original_mhd(slice_path, suffix = '.dcm', crop_flag = True):
     '''
@@ -234,9 +235,9 @@ def handle_original_mhd(slice_path, suffix = '.dcm', crop_flag = True):
     initial_shape = np.shape(initial_images)    
     for i in range(1, initial_shape[-1]+1):
         if sequence=='DCE':
-            sitk.WriteImage(sitk.Cast(sitk.GetImageFromArray(cv2.resize(initial_images[:,:,i-1], dsize=(192, 192))),sitk.sitkFloat64), MoCoMo_slice_path + '\\Original\\' + str(format(i, "03")) + '.mhd')
+            sitk.WriteImage(sitk.Cast(sitk.GetImageFromArray(cv2.resize(initial_images[:,:,i-1], dsize=(192, 192))),sitk.sitkFloat64), os.path.join(MoCoMo_slice_path,'Original',str(format(i, "03"))+'.mhd'))
         else:
-            sitk.WriteImage(sitk.Cast(sitk.GetImageFromArray(initial_images[:,:,i-1]),sitk.sitkFloat64), MoCoMo_slice_path + '\\Original\\' + str(format(i, "03")) + '.mhd')
+            sitk.WriteImage(sitk.Cast(sitk.GetImageFromArray(initial_images[:,:,i-1]),sitk.sitkFloat64), os.path.join(MoCoMo_slice_path,'Original',str(format(i, "03"))+'.mhd'))
             
     initial_images = initial_images.reshape((initial_shape[0]*initial_shape[1]), initial_shape[2])
     return initial_images, initial_shape
@@ -781,7 +782,12 @@ class GeneralClass:
         self.slice_path = slice_path
         self.sorted_dcms_paths = find_and_sort_paths(slice_path, '.dcm')
         # Attention the following must be set accordingly to the path of the user:
-        self.patient_folder = self.slice_path.split('\\')[5]
+        if platform.system() == "Windows":
+            self.patient_folder = self.slice_path.split('\\')[5]
+        elif platform.system() == "Darwin":
+            self.patient_folder = self.slice_path.split('/')[5]
+        elif platform.system() == "Linux":
+            self.patient_folder = self.slice_path.split('/')[5]
         self.AIFs_PATH = AIFs_PATH
 
         if sequence == 'T1':
@@ -830,7 +836,14 @@ class GeneralClass:
                 if idx==0:
                     three_d_mhd = np.zeros(original_shape)  
             three_d_mhd[idx, :, :] = cropped_image
-        sitk.WriteImage(sitk.GetImageFromArray(three_d_mhd), folder_path + '\\' + folder_path.split('\\')[-1] + '.mhd') 
+        
+        if platform.system() == "Windows":
+            sitk.WriteImage(sitk.GetImageFromArray(three_d_mhd), os.path.join(folder_path,folder_path.split('\\')[-1] + '.mhd'))
+        elif platform.system() == "Darwin":
+            sitk.WriteImage(sitk.GetImageFromArray(three_d_mhd), os.path.join(folder_path,folder_path.split('/')[-1] + '.mhd'))
+        elif platform.system() == "Linux":
+            sitk.WriteImage(sitk.GetImageFromArray(three_d_mhd), os.path.join(folder_path,folder_path.split('/')[-1] + '.mhd'))
+        
         return original_shape
     
     def parallel_DCE_Fitting(self, shape, images, output_path, save_flag):
@@ -1030,7 +1043,12 @@ class MoCoMo(GeneralClass):
         self.technique_str = 'MoCoMo'
         GeneralClass.__init__(self, sequence, slice_path, AIFs_PATH)
         self.sequence_images_path = sequence_images_path
-        self.current_slice = self.slice_path.split('\\')[-1]
+        if platform.system() == "Windows":
+            self.current_slice = self.slice_path.split('\\')[-1]
+        elif platform.system() == "Darwin":
+            self.current_slice = self.slice_path.split('/')[-1]
+        elif platform.system() == "Linux":
+            self.current_slice = self.slice_path.split('/')[-1]
         self.data_path = data_path
         self.sorted_dcms_paths = find_and_sort_paths(slice_path, '.dcm')
         self.MoCoMo_slice_path = MoCoMo_slice_path
@@ -1051,19 +1069,19 @@ class MoCoMo(GeneralClass):
         # Create the 3d mhd file of the original images: (it returns the shape:[t, h, w] which is the shape of the 3d_mhd file it stored)
         self.initial_shape = self.create_3d_mhd(self.slice_path, suffix='.dcm')
         # Load the 3d mhd file of the original images: (it loads the 3d_mhd file with shape [t, h, w])
-        self.original_mhd = load_mhd3d(self.slice_path + '\\' + self.current_slice + '.mhd')
+        self.original_mhd = load_mhd3d(os.path.join(self.slice_path,self.current_slice + '.mhd'))
 
     
     def bsplines_registration(self, moving_images_paths, fixed_images_paths, number_of_registration):    
         moving_images_paths = glob.glob(moving_images_paths)
         fixed_images_paths = glob.glob(fixed_images_paths)
-        output_dir = self.MoCoMo_slice_path+'\\BSplines_Registered_'+ str(number_of_registration)
+        output_dir = os.path.join(self.MoCoMo_slice_path,'BSplines_Registered_'+ str(number_of_registration))
         if self.sequence == 'DTI':
-            parameters_file = self.data_path + '\\' + 'Elastix_Parameters_Files\\' + 'BSplines_DTI.txt'
+            parameters_file = os.path.join(self.data_path,'Elastix_Parameters_Files','BSplines_DTI.txt')
         elif self.sequence == 'T1':
-            parameters_file = self.data_path + '\\' + 'Elastix_Parameters_Files\\' + 'BSplines_T1.txt'
+            parameters_file = os.path.join(self.data_path,Elastix_Parameters_Files','BSplines_T1.txt')
         elif self.sequence == 'DCE':
-            parameters_file = self.data_path + '\\' + 'Elastix_Parameters_Files\\' + 'BSplines_DCE.txt'
+            parameters_file = os.path.join(self.data_path,Elastix_Parameters_Files','BSplines_DCE.txt')
         else:
             raise Exception("Unknown sequence")
         MoCoMo_elastix_registration_wrapper(moving_images_paths, fixed_images_paths, output_dir, parameters_file)
@@ -1072,7 +1090,7 @@ class MoCoMo(GeneralClass):
     @staticmethod
     def MoCoMo_load_deformation_field(path):
         # The deformation field for each 2d images has shape (h, w, 2) the last is equal to 2 one for each dimension x and y
-        mhds = glob.glob(path+'\*.mhd')
+        mhds = glob.glob(os.path.join(path,'*.mhd'))
         assert sorted(mhds)==mhds
         df = []
         for idx, mhd in enumerate(mhds):
@@ -1092,44 +1110,44 @@ class MoCoMo(GeneralClass):
         # First Fitting:
         # self.fitting expects: [h, w, t]
         self.fitted_original, self.map_original, self.time_original_fitting, self.params_original = self.fitting(np.rollaxis(self.original_mhd, 0, 3), 
-                                                                                                                 self.MoCoMo_slice_path + '\\Fitted\\', 
+                                                                                                                 os.path.join(self.MoCoMo_slice_path,'Fitted'), 
                                                                                                                  (self.initial_shape[1], self.initial_shape[2], self.initial_shape[0]),
                                                                                                                  True)
-        np.save(self.MoCoMo_slice_path + '\\' + 'Original_map.npy' , self.map_original)
-        self.fitted_original.dump(self.MoCoMo_slice_path + '\\' + '0_Fitted')
-        np.save(self.MoCoMo_slice_path + '\\' + '0_Fitted_Parameters.npy', self.params_original)
+        np.save(os.path.join(self.MoCoMo_slice_path,'Original_map.npy') , self.map_original)
+        self.fitted_original.dump(os.path.join(self.MoCoMo_slice_path,'0_Fitted'))
+        np.save(os.path.join(self.MoCoMo_slice_path,'0_Fitted_Parameters.npy'), self.params_original)
     
         # self.MoCoMo_time_total will be measured in seconds, while self.time_original_fitting is in minutes:
         self.MoCoMo_time_total = self.MoCoMo_time_total + self.time_original_fitting*60
     
-        np.save(self.MoCoMo_slice_path + '\\Original\\' + 'Fitting_Parameters_Original.npy', self.params_original)
+        np.save(os.path.join(self.MoCoMo_slice_path,'Original','Fitting_Parameters_Original.npy'), self.params_original)
                     
             
         for i in range(self.emergency_stop):
             
             iterations = i + 1
             
-            if not os.path.isdir(self.MoCoMo_slice_path+'\\BSplines_Registered_' + str(iterations)):
-                os.mkdir(self.MoCoMo_slice_path+'\\BSplines_Registered_' + str(iterations))
+            if not os.path.isdir(os.path.join(self.MoCoMo_slice_path,'BSplines_Registered_' + str(iterations))):
+                os.mkdir(os.path.join(self.MoCoMo_slice_path,'BSplines_Registered_' + str(iterations)))
             
             start = time.time()
             
 
             #BSplines Registration with Elastix:
-            self.bsplines_registration(self.MoCoMo_slice_path + '\\Original\\'+'\*mhd',
-                                       self.MoCoMo_slice_path + '\\Fitted\\'+'\*mhd',
-                                       iterations)
+            self.bsplines_registration(os.path.join(self.MoCoMo_slice_path,'Original','*mhd'),
+                                       os.path.join(self.MoCoMo_slice_path,'Fitted','*mhd'),
+                                       iterations))
             
             stop = time.time()
             # self.MoCoMo_time_total will be measured in seconds
             self.MoCoMo_time_total = self.MoCoMo_time_total + (stop - start)
             
-            self.output_dir = self.MoCoMo_slice_path+'\\BSplines_Registered_' + str(iterations)
-            previous_output_dir = self.MoCoMo_slice_path+'\\BSplines_Registered_' + str(iterations-1)
+            self.output_dir = os.path.join(self.MoCoMo_slice_path,'BSplines_Registered_' + str(iterations))
+            previous_output_dir = os.path.join(self.MoCoMo_slice_path,'BSplines_Registered_' + str(iterations-1))
             
             self.result_mhd = find_and_load_as_mhd(self.output_dir, suffix='.mhd', crop_flag = self.crop_flag)
             self.fitted_final, self.map_corrected, self.time_fitting, self.params_final = self.fitting(self.result_mhd, 
-                                                                                                       self.MoCoMo_slice_path + '\\Fitted\\', 
+                                                                                                       os.path.join(self.MoCoMo_slice_path,'Fitted'), 
                                                                                                        (self.initial_shape[1], self.initial_shape[2], self.initial_shape[0]), 
                                                                                                        True)
             
@@ -1150,8 +1168,8 @@ class MoCoMo(GeneralClass):
                 deformation_csv_path = self.output_dir + 'largest_deformations.csv' 
                 pass
             else:
-                df_new = self.MoCoMo_load_deformation_field(self.output_dir + '\\deformation_field\\')
-                df_previous = self.MoCoMo_load_deformation_field(previous_output_dir + '\\deformation_field\\')
+                df_new = self.MoCoMo_load_deformation_field(os.path.join(self.output_dir,'deformation_field'))
+                df_previous = self.MoCoMo_load_deformation_field(os.path.join(previous_output_dir,'deformation_field'))
                 df_difference = df_new - df_previous
                 df_difference_x_squared = np.square(df_difference[:,:,0,:].squeeze())
                 df_difference_y_squared = np.square(df_difference[:,:,1,:].squeeze())
@@ -1166,7 +1184,7 @@ class MoCoMo(GeneralClass):
                 print('\n\n')
                 
                 if median_imporvement <= self.tolerance:
-                    np.save(self.MoCoMo_slice_path+'\\BSplines_Registered_' + str(iterations) + '\\'+'MoCoMo_'+self.outcome_str+'.npy', self.map_corrected)
+                    np.save(os.path.join(self.MoCoMo_slice_path,'BSplines_Registered_' + str(iterations),'MoCoMo_'+self.outcome_str+'.npy'), self.map_corrected)
                     break
                     
         diction['largest_deformation'] = median_improvement_list
@@ -1179,16 +1197,16 @@ class MoCoMo(GeneralClass):
     def MoCoMo_create_deformation_field(self):
         start = time.time()
         path = self.output_dir
-        if not os.path.isdir(path+'\\deformation_field'):
-            os.mkdir(path+'\\deformation_field')
-        txts = glob.glob(path+'\*.txt')
+        if not os.path.isdir(os.path.join(path,'deformation_field')):
+            os.mkdir(os.path.join(path,'deformation_field'))
+        txts = glob.glob(os.path.join(path,'*.txt'))
         transform_parameters_files = []
         for txt in txts:
             if 'TransformParameters' in txt:
                 transform_parameters_files.append(txt)
         assert sorted(transform_parameters_files)==transform_parameters_files
         for transform_parameter_file in transform_parameters_files:
-            transformix_deformation_field(path+'\\deformation_field\\', transform_parameter_file)
+            transformix_deformation_field(os.path.join(path,'deformation_field'), transform_parameter_file)
             change_elastix_naming_result(path+'\\deformation_field\\deformationField.mhd', 'deformationField.raw', 'deformationField_' + transform_parameter_file.split('.txt')[0][-3:] + '.raw')
             os.rename(path+'\\deformation_field\\deformationField.mhd', path+'\\deformation_field\\deformationField_' + transform_parameter_file.split('.txt')[0][-3:] + '.mhd')
             os.rename(path+'\\deformation_field\\deformationField.raw', path+'\\deformation_field\\deformationField_' + transform_parameter_file.split('.txt')[0][-3:] + '.raw')
@@ -1225,7 +1243,7 @@ TECHNIQUE = 2
 if __name__ == '__main__':
     # The sequences to be motion corrected
     POOL_OF_SEQUENCES = ['T1', 'DTI', 'DCE']
-    SEQUENCES = ['T1', 'DTI','DCE']#  
+    SEQUENCES = ['T1']#  
     #assert set(SEQUENCES).issubset(set(POOL_OF_SEQUENCES)), " Please provide a proper list of sequences choosing from: %s" % POOL_OF_SEQUENCES
     
     # CORRESPONDANCE is a dictionary which contains as keys the names

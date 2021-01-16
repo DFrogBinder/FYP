@@ -1,0 +1,25 @@
+Parameters
+
+Blood Flow  (ml/100ml/min)
+Blood MTT  (sec)
+Blood Volume  (ml/100ml)
+Tubular MTT  (min)
+Extraction Fraction  (%)
+Tubular Flow  (ml/100ml/min)
+Regional GFR  (ml/min)
+Regional Blood Flow  (ml/min)
+Region Volume  (ml)
+Chi-Square  (%)
+
+Fitted Values
+
+       328697.43
+     0.018265865
+       100.06571
+      -2230.5698
+ -2.5475792e-006
+   -0.0046056052
+  -0.00010434573
+       7447.0506
+       2.2656248
+    0.0014557092
