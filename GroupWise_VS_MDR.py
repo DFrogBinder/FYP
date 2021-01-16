@@ -1079,9 +1079,9 @@ class MoCoMo(GeneralClass):
         if self.sequence == 'DTI':
             parameters_file = os.path.join(self.data_path,'Elastix_Parameters_Files','BSplines_DTI.txt')
         elif self.sequence == 'T1':
-            parameters_file = os.path.join(self.data_path,Elastix_Parameters_Files','BSplines_T1.txt')
+            parameters_file = os.path.join(self.data_path,'Elastix_Parameters_Files','BSplines_T1.txt')
         elif self.sequence == 'DCE':
-            parameters_file = os.path.join(self.data_path,Elastix_Parameters_Files','BSplines_DCE.txt')
+            parameters_file = os.path.join(self.data_path,'Elastix_Parameters_Files','BSplines_DCE.txt')
         else:
             raise Exception("Unknown sequence")
         MoCoMo_elastix_registration_wrapper(moving_images_paths, fixed_images_paths, output_dir, parameters_file)
@@ -1136,7 +1136,7 @@ class MoCoMo(GeneralClass):
             #BSplines Registration with Elastix:
             self.bsplines_registration(os.path.join(self.MoCoMo_slice_path,'Original','*mhd'),
                                        os.path.join(self.MoCoMo_slice_path,'Fitted','*mhd'),
-                                       iterations))
+                                       iterations)
             
             stop = time.time()
             # self.MoCoMo_time_total will be measured in seconds
