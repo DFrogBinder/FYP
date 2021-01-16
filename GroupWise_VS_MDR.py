@@ -65,7 +65,7 @@ def unzip_patients(path):
     for folder in parent_folders:
         os.chdir(folder)
         for inner_folder in os.listdir():
-            shutil.move(path+'\\'+folder+'\\'+inner_folder, path+'\\'+inner_folder)
+            shutil.move(os.path.join(path,folder,inner_folder), os.path.join(path,inner_folder))
         os.chdir('..')
         shutil.rmtree(folder)
 
@@ -127,7 +127,7 @@ def find_and_load_as_mhd(folder_path, suffix, crop_flag = True):
         if not img_paths:
             img_paths = find_and_sort_paths(folder_path, '.ima') 
     elif suffix == '.mhd':
-        img_paths = glob.glob(folder_path + '\*' + suffix)
+        img_paths = glob.glob(os.path.join(folder_path,'*' + suffix))
     three_d_mhd = []
     for idx, dcm_path in enumerate(img_paths):
         current_image = io.imread(dcm_path, plugin='simpleitk').squeeze()
@@ -168,15 +168,15 @@ def clean_up_elastix_files(directory):
     Delete files created by elastix (every file except .mhd and .raw) found 
     in 'directory'.
     """
-    os.remove(directory + '\\elastix.log')
-    os.remove(directory + '\\IterationInfo.0.R0.txt')
-    os.remove(directory + '\\IterationInfo.0.R1.txt')
+    os.remove(os.path.join(directory,'elastix.log'))
+    os.remove(os.path.join(directory,'IterationInfo.0.R0.txt'))
+    os.remove(os.path.join(directory,'IterationInfo.0.R1.txt'))
     try:
-        os.remove(directory + '\\IterationInfo.0.R2.txt')
+        os.remove(os.path.join(directory,'IterationInfo.0.R2.txt'))
     except:
         pass
     try:
-        os.remove(directory + '\\IterationInfo.0.R3.txt')
+        os.remove(os.path.join(directory,'IterationInfo.0.R3.txt'))
     except:
         pass
 
@@ -184,7 +184,7 @@ def clean_up_all_files_in_folder(directory):
     """
     Delete all files found in output_dir.
     """
-    files = glob.glob(directory + '\*')
+    files = glob.glob(os.path.join(directory,'*'))
     for file in files:
         os.remove(file)
   
@@ -267,10 +267,12 @@ def MoCoMo_elastix_registration_wrapper(moving_images_paths, fixed_images_paths,
         elastix_registration(moving_image_path, fixed_image_path, output_dir, parameters_file)
         
         # Renaming, change mhd content and delete
-        os.rename(output_dir+'\\'+'result.0.raw', output_dir+'\\'+moving_image_path.split('\\')[-1].replace('.mhd', '.raw'))
-        os.rename(output_dir+'\\'+'result.0.mhd', output_dir+'\\'+moving_image_path.split('\\')[-1])
-        os.rename(output_dir+'\\'+'TransformParameters.0.txt', output_dir+'\\'+'TransformParameters.0.txt'.replace('0','{0:03d}'.format(i+1)))
-        rewrite_mhd(output_dir+'\\'+moving_image_path.split('\\')[-1], moving_image_path.split('\\')[-1].replace('.mhd', '.raw'))
+        
+        #TODO Add windows support by detecting platform
+        os.rename(os.path.join(output_dir,'result.0.raw'), os.path.join(output_dir,moving_image_path.split('/')[-1].replace('.mhd', '.raw')))
+        os.rename(os.path.join(output_dir,'result.0.mhd'), os.path.join(output_dir,moving_image_path.split('/')[-1]))
+        os.rename(os.path.join(output_dir,'TransformParameters.0.txt'),os.path.join(output_dir,'TransformParameters.0.txt'.replace('0','{0:03d}'.format(i+1))))
+        rewrite_mhd(os.path.join(output_dir,moving_image_path.split('/')[-1]), moving_image_path.split('/')[-1].replace('.mhd', '.raw'))
         
         clean_up_elastix_files(output_dir)
             
@@ -800,7 +802,7 @@ class GeneralClass:
             self.outcome_str = 'FA_map'
         elif sequence == 'DCE':
             self.resize_flag = True
-            self.aif, self.times = load_txt(self.AIFs_PATH + '\\patient_' + str(self.patient_folder[-3:]) + '\\' + 'AIF__2C Filtration__Curve.txt')
+            self.aif, self.times = load_txt(os.path.join(self.AIFs_PATH,'patient_' + str(self.patient_folder[-3:]), 'AIF__2C Filtration__Curve.txt'))
             # Hack because the aif and time txts given were always an element shorter, hence the last element is duplicated:
             self.aif.append(self.aif[-1])
             self.times.append(self.times[-1])
