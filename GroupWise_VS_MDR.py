@@ -1243,7 +1243,7 @@ if __name__ == '__main__':
     ### MAIN:
     # Unzip to extract Leeds_Patients_ ... folders
     #DATA_PATH = r'C:\Users\umfta\Desktop\Patients_2' 
-    #AIFs_PATH = DATA_PATH + r'\AIFs'
+    AIFs_PATH = os.path.join(DATA_PATH,'AIFs')
     #TECHNIQUE = 1
     
     
