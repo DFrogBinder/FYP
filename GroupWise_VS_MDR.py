@@ -923,8 +923,8 @@ class GeneralClass:
         return fitted, outcome, np.round(time_taken/60, 3), params
     
     def registration_metrics_wrapper(self):
-        np.save(self.output_dir + '\\Original_Fitted_' + self.technique_str, self.fitted_original.data)
-        np.save(self.output_dir + '\\Final_Fitted_' + self.technique_str, self.fitted_final.data)
+        np.save(os.path.join(self.output_dir,'Original_Fitted_' + self.technique_str), self.fitted_original.data)
+        np.save(os.path.join(self.output_dir,'Final_Fitted_' + self.technique_str), self.fitted_final.data)
         print(self.sequence)
                               
         rows_start, rows_end, cols_start, cols_end = cropping_dimensions(self.sequence)
@@ -980,8 +980,10 @@ class GeneralClass:
         
         # Save all metrics Original and Method in csv      
         df_total = pd.concat([df_original, df_method], keys=[self.patient_folder + '_' + 'Original', self.patient_folder + '_' + self.technique_str])
-
-        csv_path = '\\'.join(self.slice_path.split('\\')[:-4])+ '\\' + self.current_slice + '_Metrics_' + self.technique_str + '_cropped.csv'
+        
+        #TODO Make pathing more general using os.path.join()
+        # csv_path = '\\'.join(self.slice_path.split('\\')[:-4])+ '\\' + self.current_slice + '_Metrics_' + self.technique_str + '_cropped.csv'
+        csv_path = '/'.join(self.slice_path.split('/')[:-4])+ '/' + self.current_slice + '_Metrics_' + self.technique_str + '_cropped.csv'
         
         if not os.path.isfile(csv_path):
             df_total.to_csv(csv_path)
@@ -990,7 +992,7 @@ class GeneralClass:
         
         return df_original['median_chi_squared'][0], df_method['median_chi_squared'][0]
     
-
+#TODO Fix pathing
 class Huizinga(GeneralClass):
     
     def __init__(self, sequence, slice_path, AIFs_PATH, data_path, sequence_images_path, parameters_file):
@@ -1009,7 +1011,7 @@ class Huizinga(GeneralClass):
         # Load the 3d mhd file of the original images (it loads the 3d_mhd file with shape [t, h, w]:
         self.original_mhd = load_mhd3d(self.slice_path + '\\' + self.current_slice + '.mhd')
     
-        
+    #TODO Fix pathing 
     def Huizinga_wrapper_function(self):
         # Perform GroupWise Registration:
         start = time.time()
@@ -1207,9 +1209,9 @@ class MoCoMo(GeneralClass):
         assert sorted(transform_parameters_files)==transform_parameters_files
         for transform_parameter_file in transform_parameters_files:
             transformix_deformation_field(os.path.join(path,'deformation_field'), transform_parameter_file)
-            change_elastix_naming_result(path+'\\deformation_field\\deformationField.mhd', 'deformationField.raw', 'deformationField_' + transform_parameter_file.split('.txt')[0][-3:] + '.raw')
-            os.rename(path+'\\deformation_field\\deformationField.mhd', path+'\\deformation_field\\deformationField_' + transform_parameter_file.split('.txt')[0][-3:] + '.mhd')
-            os.rename(path+'\\deformation_field\\deformationField.raw', path+'\\deformation_field\\deformationField_' + transform_parameter_file.split('.txt')[0][-3:] + '.raw')
+            change_elastix_naming_result(os.path.join(path,'deformation_field','deformationField.mhd'), 'deformationField.raw', 'deformationField_' + transform_parameter_file.split('.txt')[0][-3:] + '.raw')
+            os.rename(os.apth.join(path,'deformation_field','deformationField.mhd'), os.path.join(path,'deformation_field','deformationField_' + transform_parameter_file.split('.txt')[0][-3:] + '.mhd'))
+            os.rename(os.path.join(path,'deformation_field','deformationField.raw'), os.path.join(path,'deformation_field','deformationField_' + transform_parameter_file.split('.txt')[0][-3:] + '.raw'))
         stop = time.time()
         return start - stop
         
