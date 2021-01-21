@@ -432,7 +432,7 @@ def parallel_T1_fitting(images, output_path, inversion_times, initial_shape, sav
         if not os.path.isdir(output_path):
             os.mkdir(output_path)
         for i in range(1, initial_shape[-1]+1):
-            sitk.WriteImage(sitk.Cast(sitk.GetImageFromArray(fitted[:,:,i-1]),sitk.sitkFloat64), output_path + str(format(i, "03")) + '.mhd')
+            sitk.WriteImage(sitk.Cast(sitk.GetImageFromArray(fitted[:,:,i-1]),sitk.sitkFloat64), os.path.join(output_path,str(format(i, "03")) + '.mhd'))
     return fitted.reshape(initial_shape), T1_estimated.reshape((initial_shape[0], initial_shape[1])), [T1_aparent.reshape((initial_shape[0], initial_shape[1])), B.reshape((initial_shape[0], initial_shape[1])), A.reshape((initial_shape[0], initial_shape[1]))], images.reshape(initial_shape)
     
 ###############################################################################
@@ -1259,7 +1259,7 @@ if __name__ == '__main__':
     # the third element is the number of slices for each sequence
     CORRESPONDANCE = OrderedDict()
     CORRESPONDANCE['T1'] = [19, 140, 5] 
-    CORRESPONDANCE['DTI'] = [31, 4380, 30]    
+    CORRESPONDANCE['DTI'] = [30, 4380, 30]    
     CORRESPONDANCE['DCE'] = [39, 2385, 9]
     
     ### MAIN:
