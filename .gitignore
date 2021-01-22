@@ -1,4 +1,5 @@
 /Data/
+/DICOM/
 /Images/
 *.pyc
 *.gif
