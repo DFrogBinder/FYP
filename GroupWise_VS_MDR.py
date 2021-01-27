@@ -144,10 +144,10 @@ def elastix_registration(moving_image_path, fixed_image_path, output_dir, parame
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
     #cmd = [ 'elastix', '-m', moving_image_path, '-f', fixed_image_path, '-out', output_dir, '-p', parameters_file]
-    cmd = [ '/Users/boyanivanov/Elastix/bin/elastix' + ' -m '+ moving_image_path + ' -f '+fixed_image_path + ' -out ' + output_dir + ' -p ' + parameters_file]
+    cmd = [ '/Users/boyanivanov/Desktop/FYP/elastix.sh ' + ' -m '+ moving_image_path + ' -f '+fixed_image_path + ' -out ' + output_dir + ' -p ' + parameters_file]
     try:
         #subprocess.check_call(cmd)
-        os.system("sudo bash /Users/boyanivanov/elastix.sh")
+        os.system(cmd)
     except:
         print ('Image registration failed')
         print (sys.exc_info())
@@ -270,13 +270,14 @@ def MoCoMo_elastix_registration_wrapper(moving_images_paths, fixed_images_paths,
         
         # Renaming, change mhd content and delete
         
+        '''
+        os.rename(output_dir+'/'+'result.0.raw', output_dir+'/'+moving_image_path.split('/')[-1].replace('.mhd', '.raw'))
+        os.rename(output_dir+'/'+'result.0.mhd', output_dir+'/'+moving_image_path.split('/')[-1])
+        os.rename(output_dir+'/'+'TransformParameters.0.txt', output_dir+'/'+'TransformParameters.0.txt'.replace('0','{0:03d}'.format(i+1)))
+        rewrite_mhd(output_dir+'/'+moving_image_path.split('/')[-1], moving_image_path.split('/')[-1].replace('.mhd', '.raw'))
+        '''
+        
         #TODO Add windows support by detecting platform
-        os.rename(output_dir+'\\'+'result.0.raw', output_dir+'\\'+moving_image_path.split('\\')[-1].replace('.mhd', '.raw'))
-        os.rename(output_dir+'\\'+'result.0.mhd', output_dir+'\\'+moving_image_path.split('\\')[-1])
-        os.rename(output_dir+'\\'+'TransformParameters.0.txt', output_dir+'\\'+'TransformParameters.0.txt'.replace('0','{0:03d}'.format(i+1)))
-        rewrite_mhd(output_dir+'\\'+moving_image_path.split('\\')[-1], moving_image_path.split('\\')[-1].replace('.mhd', '.raw'))
-        
-        
         os.rename(os.path.join(output_dir,'result.0.raw'), os.path.join(output_dir,moving_image_path.split('/')[-1].replace('.mhd', '.raw')))
         os.rename(os.path.join(output_dir,'result.0.mhd'), os.path.join(output_dir,moving_image_path.split('/')[-1]))
         os.rename(os.path.join(output_dir,'TransformParameters.0.txt'),os.path.join(output_dir,'TransformParameters.0.txt'.replace('0','{0:03d}'.format(i+1))))
