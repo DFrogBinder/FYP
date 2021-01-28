@@ -145,9 +145,10 @@ def elastix_registration(moving_image_path, fixed_image_path, output_dir, parame
         os.mkdir(output_dir)
     #cmd = [ 'elastix', '-m', moving_image_path, '-f', fixed_image_path, '-out', output_dir, '-p', parameters_file]
     cmd = [ '/Users/boyanivanov/Desktop/FYP/elastix.sh ' + moving_image_path + ' ' + fixed_image_path + ' ' + output_dir + ' ' + parameters_file]
+    StrCmd = ' '.join([str(elem) for elem in cmd])
     try:
         #subprocess.check_call(cmd)
-        os.system(cmd)
+        os.system(StrCmd)
     except:
         print ('Image registration failed')
         print (sys.exc_info())
