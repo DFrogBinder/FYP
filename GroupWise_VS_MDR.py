@@ -246,9 +246,11 @@ def handle_original_mhd(slice_path, suffix = '.dcm', crop_flag = True):
     return initial_images, initial_shape
 
 def transformix_deformation_field(output_dir, transform_parameters_file):
-    cmd = [ 'transformix', '-def', 'all', '-out', output_dir, '-tp', transform_parameters_file]
+    #cmd = [ 'transformix', '-def', 'all', '-out', output_dir, '-tp', transform_parameters_file]
+    cmd = [ '/Users/boyanivanov/Desktop/FYP/transformix.sh ' + output_dir + ' ' + transform_parameters_file]
+    StrCmd = ' '.join([str(elem) for elem in cmd])
     try:
-        subprocess.check_call(cmd)
+        os.system(StrCmd)
     except:
         print ('Transformix failed')
         print (sys.exc_info())
@@ -263,7 +265,8 @@ def MoCoMo_elastix_registration_wrapper(moving_images_paths, fixed_images_paths,
     '''
     moving_images_paths = sorted(moving_images_paths)
     fixed_images_paths = sorted(fixed_images_paths)
-    for i in range(len(moving_images_paths)):
+    print("Registering images")
+    for i in tqdm(range(len(moving_images_paths))):
         moving_image_path = moving_images_paths[i]
         fixed_image_path = fixed_images_paths[i]
     
@@ -1218,11 +1221,12 @@ class MoCoMo(GeneralClass):
         for txt in txts:
             if 'TransformParameters' in txt:
                 transform_parameters_files.append(txt)
-        assert sorted(transform_parameters_files)==transform_parameters_files
-        for transform_parameter_file in transform_parameters_files:
+        assert sorted(transform_parameters_files)==sorted(transform_parameters_files)
+        print("Running Transformix")
+        for transform_parameter_file in tqdm(transform_parameters_files):
             transformix_deformation_field(os.path.join(path,'deformation_field'), transform_parameter_file)
             change_elastix_naming_result(os.path.join(path,'deformation_field','deformationField.mhd'), 'deformationField.raw', 'deformationField_' + transform_parameter_file.split('.txt')[0][-3:] + '.raw')
-            os.rename(os.apth.join(path,'deformation_field','deformationField.mhd'), os.path.join(path,'deformation_field','deformationField_' + transform_parameter_file.split('.txt')[0][-3:] + '.mhd'))
+            os.rename(os.path.join(path,'deformation_field','deformationField.mhd'), os.path.join(path,'deformation_field','deformationField_' + transform_parameter_file.split('.txt')[0][-3:] + '.mhd'))
             os.rename(os.path.join(path,'deformation_field','deformationField.raw'), os.path.join(path,'deformation_field','deformationField_' + transform_parameter_file.split('.txt')[0][-3:] + '.raw'))
         stop = time.time()
         return start - stop
