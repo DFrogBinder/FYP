@@ -93,7 +93,7 @@ def Register(ImagePopulation):
 def Scratch():
         # Detects operating system and sets the paths to the DICOMs
         if platform.system() == "Windows":
-                PathDicom = "D:\IDL\PatientData_VM\DICOM"
+                PathDicom = "D:\IDL\FYP\Data"
         elif platform.system() == "Darwin":
                 PathDicom = "/Users/boyanivanov/Desktop/FYP/DICOM"
         elif platform.system() == "Linux":
@@ -128,13 +128,6 @@ def Scratch():
 
         TestList = []
         TestList2 = []
-        for filenameDCM in tqdm(lstFilesDCM):
-                # read the file
-                ds = pydicom.read_file(filenameDCM)
-                try:
-                        Data.append(ds[0x0019,0x100c])
-                except:
-                        os.remove(filenameDCM)
 
         #loop through all the DICOM files
         print("Loading Data...")

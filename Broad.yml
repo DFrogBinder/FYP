@@ -1,4 +1,4 @@
-name: FYP
+name: base
 channels:
   - defaults
 dependencies:
@@ -11,4 +11,4 @@ dependencies:
   - anaconda==2020.11=py38_0
   - anaconda-navigator
   - navigator-updater
-prefix: C:\ProgramData\Anaconda3\envs\FYP
+prefix: C:\ProgramData\Anaconda3\envs\base
