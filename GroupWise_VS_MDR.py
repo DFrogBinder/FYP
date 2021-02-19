@@ -1246,7 +1246,7 @@ class MoCoMo(GeneralClass):
 
 # Detects operating system and sets the paths to the DICOMs
 if platform.system() == "Windows":
-        DATA_PATH = "D:\IDL\PatientData_VM\DICOM"
+        DATA_PATH = "D:\IDL\FYP\DICOM"
 elif platform.system() == "Darwin":
         DATA_PATH = "/Users/boyanivanov/Desktop/FYP/DICOM"
 elif platform.system() == "Linux":
