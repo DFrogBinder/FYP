@@ -7,9 +7,6 @@ import pydicom
 import platform
 from tqdm import tqdm 
 
-
-
-
 def dcm2nifti(path):
 
     # Reads the image using SimpleITK
@@ -27,7 +24,6 @@ def dcm2nifti(path):
     spacing = np.array(list(reversed(itkimage.GetSpacing())))
     return scan
 
-dir_entry = os.listdir(imagepath)
 mhd_entry_list = []
 nifti_matrix = []
 locationMatrix = []
@@ -70,27 +66,24 @@ for filenameDCM in tqdm(lstFilesDCM):
 locationMatrix = np.asarray(locationMatrix) 
 locationMatrix = np.unique(locationMatrix)
 
-print("Sorting Data")
-for index,location in zip(tqdm(range(len(locationMatrix)-1)),locationMatrix):
-        key = "Position_"+str(index)
+print("Sorting Data...")
+for index,location in zip(tqdm(range(len(locationMatrix))),locationMatrix):
+        key =str(index)
         SortedImages[key]=[]
         for image in Data:
                 if float(image.SliceLocation) == location:
                         SortedImages[key].append(image.pixel_array)
                         
                         
+print('Exporting Data...')
+for image in tqdm(SortedImages):
+        for dynamic in SortedImages[image]:
+                ni = nib.Nifti1Image(np.rot90(np.stack(SortedImages[image],axis=2)),affine=np.eye(4))
+                
+                if os.path.exists(os.path.join(os.getcwd(),'Nifti_Export')):
+                        nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(image)+'.nii.gz'][0]))
+                else:
+                        os.mkdir(os.path.join(os.getcwd(),'Nifti_Export'))
+                        nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(image)+'.nii.gz'][0]))
 
-for mhd_file,index in zip(mhd_entry_list,range(len(mhd_entry_list))):
-    Nifti_Layer =  dcm2nifti(os.path.join(PathDicom,mhd_file),index)
-    nifti_matrix.append(Nifti_Layer)
-nifti_matrix_convert = np.array(nifti_matrix)
-ct_scan_nifti = nib.Nifti1Image(nifti_matrix_convert, affine=np.eye(4))
-    
-if os.path.exists(os.path.join(os.getcwd(),'Nifti_Export')):
-    nib.save(ct_scan_nifti, os.path.join('Nifti_Export', ['Data'+'.nii.gz'][0]))
-else:
-    os.mkdir(os.path.join(os.getcwd(),'Nifti_Export'))
-    nib.save(ct_scan_nifti, os.path.join('Nifti_Export', ['Data'+'.nii.gz'][0]))
-    
-
-print("Saving Nifti is done")
+print("Data is exported!")
