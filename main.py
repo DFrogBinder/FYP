@@ -93,7 +93,7 @@ def Register(ImagePopulation):
 def Scratch():
         # Detects operating system and sets the paths to the DICOMs
         if platform.system() == "Windows":
-                PathDicom = "D:\IDL\FYP\Data"
+                PathDicom = r'D:\IDL\FYP\DICOM\Leeds_Patient_4128010\19\DICOM'
         elif platform.system() == "Darwin":
                 PathDicom = "/Users/boyanivanov/Desktop/FYP/DICOM"
         elif platform.system() == "Linux":
