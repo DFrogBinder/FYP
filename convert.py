@@ -27,8 +27,10 @@ def dcm2nifti(path):
 mhd_entry_list = []
 nifti_matrix = []
 locationMatrix = []
+InstaceMatrix=[]
 Data=[]
 SortedImages = {}
+Instace ={}
 
 # Detects operating system and sets the paths to the DICOMs
 if platform.system() == "Windows":
@@ -63,6 +65,7 @@ for filenameDCM in tqdm(lstFilesDCM):
         ds = pydicom.read_file(filenameDCM)
         Data.append(ds)
         locationMatrix.append(ds.SliceLocation)
+
 locationMatrix = np.asarray(locationMatrix) 
 locationMatrix = np.unique(locationMatrix)
 
@@ -73,17 +76,40 @@ for index,location in zip(tqdm(range(len(locationMatrix))),locationMatrix):
         for image in Data:
                 if float(image.SliceLocation) == location:
                         SortedImages[key].append(image.pixel_array)
-                        
-                        
-print('Exporting Data...')
-for image in tqdm(SortedImages):
-        for dynamic in SortedImages[image]:
-                ni = nib.Nifti1Image(np.rot90(np.stack(SortedImages[image],axis=2)),affine=np.eye(4))
-                
-                if os.path.exists(os.path.join(os.getcwd(),'Nifti_Export')):
-                        nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(image)+'.nii.gz'][0]))
+CurrentInstance=0
+def add(number):
+        return number+1
+Test =[]
+flag = True
+while flag:
+        for i,j in zip(Data,range(len(Data))):
+                if i.InstanceNumber==add(CurrentInstance):
+                        CurrentInstance = j
+                        Test.append(i.pixel_array)
+                        if len(Test)==len(Data):
+                                flag=False
                 else:
-                        os.mkdir(os.path.join(os.getcwd(),'Nifti_Export'))
-                        nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(image)+'.nii.gz'][0]))
+                        continue
+
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst.   https://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks"""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+Indecies=list(chunks(range(0, 140), 5))
+     
+print('Exporting Data...')
+for i,j in zip(tqdm(Indecies),range(len(Indecies))):
+        NiftiFile=[]
+        for dynamic in i:
+                #ni = nib.Nifti1Image(np.flipud(np.rot90(np.stack(SortedImages[image],axis=2))),affine=np.eye(4))
+                NiftiFile.append(Data[dynamic].pixel_array)
+        NiftiFile = np.asarray(NiftiFile)
+        ni = nib.Nifti1Image(NiftiFile.T,affine=np.eye(4))
+                
+        if os.path.exists(os.path.join('','Nifti_Export')):
+                nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(j)+'.nii.gz'][0]))
+        else:
+                os.mkdir(os.path.join(os.getcwd(),'Nifti_Export'))
+                nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(j)+'.nii.gz'][0]))
 
 print("Data is exported!")
