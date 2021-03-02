@@ -30,6 +30,7 @@ locationMatrix = []
 InstaceMatrix=[]
 Data=[]
 SortedImages = {}
+SortedNifti={}
 Instace ={}
 
 # Detects operating system and sets the paths to the DICOMs
@@ -79,37 +80,30 @@ for index,location in zip(tqdm(range(len(locationMatrix))),locationMatrix):
 CurrentInstance=0
 def add(number):
         return number+1
-Test =[]
-flag = True
-while flag:
-        for i,j in zip(Data,range(len(Data))):
-                if i.InstanceNumber==add(CurrentInstance):
-                        CurrentInstance = j
-                        Test.append(i.pixel_array)
-                        if len(Test)==len(Data):
-                                flag=False
-                else:
-                        continue
 
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst.   https://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks"""
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
 Indecies=list(chunks(range(0, 140), 5))
-     
+
+for i in SortedImages:
+        for j,k in zip(SortedImages[i],range(len(SortedImages[i]))):
+                if k not in SortedNifti:
+                        SortedNifti[k]=[]
+                        SortedNifti[k].append(j)
+                else:
+                        SortedNifti[k].append(j)
+
 print('Exporting Data...')
-for i,j in zip(tqdm(Indecies),range(len(Indecies))):
-        NiftiFile=[]
-        for dynamic in i:
-                #ni = nib.Nifti1Image(np.flipud(np.rot90(np.stack(SortedImages[image],axis=2))),affine=np.eye(4))
-                NiftiFile.append(Data[dynamic].pixel_array)
-        NiftiFile = np.asarray(NiftiFile)
-        ni = nib.Nifti1Image(NiftiFile.T,affine=np.eye(4))
+for nifti in tqdm(SortedNifti):
+        File = np.asarray(SortedNifti[nifti]).T
+        ni = nib.Nifti1Image(np.flipud(np.rot90(File)),affine=np.eye(4))
                 
         if os.path.exists(os.path.join('','Nifti_Export')):
-                nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(j)+'.nii.gz'][0]))
+                nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(nifti)+'.nii.gz'][0]))
         else:
                 os.mkdir(os.path.join(os.getcwd(),'Nifti_Export'))
-                nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(j)+'.nii.gz'][0]))
+                nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(nifti)+'.nii.gz'][0]))
 
 print("Data is exported!")
