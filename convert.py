@@ -94,6 +94,7 @@ def Convert():
                                 SortedNifti[k].append(j)
                         else:
                                 SortedNifti[k].append(j)
+        
         '''
      
         Slice = SortedImages['2']
