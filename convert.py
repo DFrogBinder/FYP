@@ -19,7 +19,7 @@ def Convert():
 
         # Detects operating system and sets the paths to the DICOMs
         if platform.system() == "Windows":
-                PathDicom = r'D:\IDL\Data\Leeds_Patient_09\42\DICOM'
+                PathDicom = r'D:\IDL\Data\Leeds_Patient_10\19\DICOM'
         elif platform.system() == "Darwin":
                 PathDicom = "/Users/boyanivanov/Desktop/FYP/DICOM"
         elif platform.system() == "Linux":
@@ -59,6 +59,20 @@ def Convert():
         locationMatrix = np.asarray(locationMatrix) 
         locationMatrix = np.unique(locationMatrix)
 
+        def add(number):
+                return(number+1)
+
+        Test = []
+        CurrentInstance = 1
+        flag = True
+        while flag:
+                for i,j in zip(Data,range(len(Data))):
+                        if i.InstanceNumber == add(CurrentInstance):
+                                CurrentInstance = j
+                                Test.append(i.pixel_array)
+                                if len(Test)==len(Data):
+                                        flag = False
+
         print("Sorting Data...")
         for index,location in zip(tqdm(range(len(locationMatrix))),locationMatrix):
                 key =str(index)
@@ -71,8 +85,8 @@ def Convert():
                 """Yield successive n-sized chunks from lst.   https://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks"""
                 for i in range(0, len(lst), n):
                         yield lst[i:i + n]
-                Indecies=list(chunks(range(0, 140), 5))
-
+        Indecies=list(chunks(range(0, 140), 5))
+        '''
         for i in SortedImages:
                 for j,k in zip(SortedImages[i],range(len(SortedImages[i]))):
                         if k not in SortedNifti:
@@ -80,11 +94,20 @@ def Convert():
                                 SortedNifti[k].append(j)
                         else:
                                 SortedNifti[k].append(j)
+        '''
+     
+        Slice = SortedImages['2']
+        for j,k in zip(Slice,range(len(Slice))):
+                if k not in SortedNifti:
+                        SortedNifti[k]=[]
+                        SortedNifti[k].append(j)
+                else:
+                        SortedNifti[k].append(j)
 
         print('Exporting Data...')
         for nifti in tqdm(SortedNifti):
                 File = np.asarray(SortedNifti[nifti]).T
-                ni = nib.Nifti1Image(np.flipud(np.rot90(File)),affine=np.eye(4))
+                ni = nib.Nifti1Image(np.flipud(File),affine=np.eye(4))
                         
                 if os.path.exists(os.path.join('','Nifti_Export')):
                         nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(nifti)+'.nii.gz'][0]))
