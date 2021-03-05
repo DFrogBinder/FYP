@@ -7,6 +7,35 @@ import pydicom
 import platform
 from tqdm import tqdm 
 
+def chunks(lst, n):
+                """
+                Yield successive n-sized chunks from lst.   
+                https://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks
+                """
+                for i in range(0, len(lst), n):
+                        yield lst[i:i + n]
+
+def add(number):
+        return number+1
+
+def AquisitionTimeSort(Data):
+        for i in range(len(Data)):
+                for j in Data[str(i)]:
+                        if j.AcquisitionTime not in Data:
+                                print('Hello')
+
+def InstanceNumberSort(Data):
+        Test = []
+        CurrentInstance = 1
+        flag = True
+        while flag:
+                for i,j in zip(Data,range(len(Data))):
+                        if i.InstanceNumber == add(CurrentInstance):
+                                CurrentInstance = j
+                                Test.append(i.pixel_array)
+                                if len(Test)==len(Data):
+                                        flag = False
+
 def Convert():
         mhd_entry_list = []
         nifti_matrix = []
@@ -16,15 +45,17 @@ def Convert():
         SortedImages = {}
         SortedNifti={}
         Instace ={}
+        Aqu=[] 
+        OrderedImages=[]       
 
         # Detects operating system and sets the paths to the DICOMs
         if platform.system() == "Windows":
-                PathDicom = r'D:\IDL\Data\Leeds_Patient_10\19\DICOM'
+                PathDicom = r'D:\IDL\Data\Leeds_Patient_10\30\DICOM'
         elif platform.system() == "Darwin":
                 PathDicom = "/Users/boyanivanov/Desktop/FYP/DICOM"
         elif platform.system() == "Linux":
                 PathDicom = "/home/quaz/Desktop/FYP/DICOM"
-                
+
         lstFilesDCM = []  # create an empty list
         for dirName, subdirList, fileList in os.walk(PathDicom):
                 for filename in fileList:
@@ -32,9 +63,7 @@ def Convert():
                                 lstFilesDCM.append(os.path.join(dirName,filename))
                         elif ".ima" in filename.lower():
                                 lstFilesDCM.append(os.path.join(dirName,filename))
-                        else:
-                                print("Unsuported File Format!")
-                                return
+
 
         # Get ref file
         RefDs = pydicom.read_file(lstFilesDCM[0])
@@ -55,23 +84,13 @@ def Convert():
                 ds = pydicom.read_file(filenameDCM)
                 Data.append(ds)
                 locationMatrix.append(ds.SliceLocation)
+                Aqu.append(ds.AcquisitionTime)
 
         locationMatrix = np.asarray(locationMatrix) 
         locationMatrix = np.unique(locationMatrix)
 
-        def add(number):
-                return(number+1)
-
-        Test = []
-        CurrentInstance = 1
-        flag = True
-        while flag:
-                for i,j in zip(Data,range(len(Data))):
-                        if i.InstanceNumber == add(CurrentInstance):
-                                CurrentInstance = j
-                                Test.append(i.pixel_array)
-                                if len(Test)==len(Data):
-                                        flag = False
+        Aqu = np.asarray(Aqu) 
+        Aqu = np.unique(Aqu)
 
         print("Sorting Data...")
         for index,location in zip(tqdm(range(len(locationMatrix))),locationMatrix):
@@ -80,13 +99,9 @@ def Convert():
                 for image in Data:
                         if float(image.SliceLocation) == location:
                                 SortedImages[key].append(image.pixel_array)
-
-        def chunks(lst, n):
-                """Yield successive n-sized chunks from lst.   https://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks"""
-                for i in range(0, len(lst), n):
-                        yield lst[i:i + n]
+      
         Indecies=list(chunks(range(0, 140), 5))
-        '''
+   
         for i in SortedImages:
                 for j,k in zip(SortedImages[i],range(len(SortedImages[i]))):
                         if k not in SortedNifti:
@@ -94,16 +109,6 @@ def Convert():
                                 SortedNifti[k].append(j)
                         else:
                                 SortedNifti[k].append(j)
-        
-        '''
-     
-        Slice = SortedImages['2']
-        for j,k in zip(Slice,range(len(Slice))):
-                if k not in SortedNifti:
-                        SortedNifti[k]=[]
-                        SortedNifti[k].append(j)
-                else:
-                        SortedNifti[k].append(j)
 
         print('Exporting Data...')
         for nifti in tqdm(SortedNifti):
