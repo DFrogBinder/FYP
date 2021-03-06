@@ -35,6 +35,16 @@ def InstanceNumberSort(Data):
                                 Test.append(i.pixel_array)
                                 if len(Test)==len(Data):
                                         flag = False
+def OneDynamicSort(Data):
+        OneDynamicSortMatrix={}
+        for i in range(27):
+                key = str(i)
+                OneDynamicSortMatrix[key]=[]
+        for dynamic in range(27):
+                for LocationNumber in Data:
+                        OneDynamicSortMatrix[str(dynamic)].append(Data[LocationNumber][int(dynamic)])
+        return OneDynamicSortMatrix
+
 
 def Convert():
         mhd_entry_list = []
@@ -50,7 +60,7 @@ def Convert():
 
         # Detects operating system and sets the paths to the DICOMs
         if platform.system() == "Windows":
-                PathDicom = r'D:\IDL\Data\Leeds_Patient_10\30\DICOM'
+                PathDicom = r'D:\IDL\Data\Leeds_Patient_10\19\DICOM'
         elif platform.system() == "Darwin":
                 PathDicom = "/Users/boyanivanov/Desktop/FYP/DICOM"
         elif platform.system() == "Linux":
@@ -101,7 +111,8 @@ def Convert():
                                 SortedImages[key].append(image.pixel_array)
       
         Indecies=list(chunks(range(0, 140), 5))
-   
+        SortedNifti = OneDynamicSort(SortedImages)
+        '''
         for i in SortedImages:
                 for j,k in zip(SortedImages[i],range(len(SortedImages[i]))):
                         if k not in SortedNifti:
@@ -109,7 +120,7 @@ def Convert():
                                 SortedNifti[k].append(j)
                         else:
                                 SortedNifti[k].append(j)
-
+        '''
         print('Exporting Data...')
         for nifti in tqdm(SortedNifti):
                 File = np.asarray(SortedNifti[nifti]).T
