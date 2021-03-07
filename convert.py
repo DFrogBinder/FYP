@@ -45,6 +45,15 @@ def OneDynamicSort(Data):
                         OneDynamicSortMatrix[str(dynamic)].append(Data[LocationNumber][int(dynamic)])
         return OneDynamicSortMatrix
 
+def DGD_Sort(Data):
+        DGDs ={}
+        for i in range(146):
+                key = str(i)
+                DGDs[key]=[]
+        for dynamic in range(146):
+                for LocationNumber in Data:
+                        DGDs[str(dynamic)].append(Data[LocationNumber][int(dynamic)].pixel_array)
+        return DGDs
 
 def Convert():
         mhd_entry_list = []
@@ -56,11 +65,13 @@ def Convert():
         SortedNifti={}
         Instace ={}
         Aqu=[] 
-        OrderedImages=[]       
+        OrderedImages=[]    
+        DGD=[]   
+        Bval=[]
 
         # Detects operating system and sets the paths to the DICOMs
         if platform.system() == "Windows":
-                PathDicom = r'D:\IDL\Data\Leeds_Patient_10\19\DICOM'
+                PathDicom = r'D:\IDL\Data\Leeds_Patient_10\30\DICOM'
         elif platform.system() == "Darwin":
                 PathDicom = "/Users/boyanivanov/Desktop/FYP/DICOM"
         elif platform.system() == "Linux":
@@ -95,12 +106,20 @@ def Convert():
                 Data.append(ds)
                 locationMatrix.append(ds.SliceLocation)
                 Aqu.append(ds.AcquisitionTime)
+                DGD.append(ds[0x0019,0x100e].value)
+                Bval.append(ds[0x0019,0x100c].value)
 
         locationMatrix = np.asarray(locationMatrix) 
         locationMatrix = np.unique(locationMatrix)
 
         Aqu = np.asarray(Aqu) 
         Aqu = np.unique(Aqu)
+        
+        DGD = np.asarray(DGD)
+        DGD = np.unique(DGD)
+
+        Bval = np.asarray(Bval)
+        Bval = np.unique(Bval)
 
         print("Sorting Data...")
         for index,location in zip(tqdm(range(len(locationMatrix))),locationMatrix):
@@ -108,10 +127,10 @@ def Convert():
                 SortedImages[key]=[]
                 for image in Data:
                         if float(image.SliceLocation) == location:
-                                SortedImages[key].append(image.pixel_array)
+                                SortedImages[key].append(image)
       
         Indecies=list(chunks(range(0, 140), 5))
-        SortedNifti = OneDynamicSort(SortedImages)
+        SortedNifti = DGD_Sort(SortedImages)
         '''
         for i in SortedImages:
                 for j,k in zip(SortedImages[i],range(len(SortedImages[i]))):
