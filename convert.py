@@ -19,23 +19,42 @@ def add(number):
         return number+1
 
 def AquisitionTimeSort(Data):
-        SortedTimes=[0]
-        for i in range(len(Data['0'])):
-                for j in Data[str(i)]:
-                        if j.AcquisitionTime not in SortedTimes & min(np.asarray(SortedTimes)):
-                                SortedTimes.append(j)
-
-def InstanceNumberSort(Data):
-        Test = []
-        CurrentInstance = 1
-        flag = True
-        while flag:
-                for i,j in zip(Data,range(len(Data))):
-                        if i.InstanceNumber == add(CurrentInstance):
-                                CurrentInstance = j
-                                Test.append(i.pixel_array)
-                                if len(Test)==len(Data):
-                                        flag = False
+        SortedFile={}
+        SortedFileRef = {}
+        Test = {}
+        # Creates Ref Arrays
+        for depth in Data:
+                key=str(depth)
+                SortedFileRef[key]=[]
+                for location in Data[str(depth)]:
+                        SortedFileRef[key].append(float(location.AcquisitionTime))
+        # Sorts Ref Arrays
+        for depth in SortedFileRef:
+                for array in SortedFileRef[depth]:
+                        SortedFileRef[depth]=np.sort(SortedFileRef[depth])
+        
+        for depth in SortedFileRef:
+                key=str(depth)
+                SortedFile[key]=[]
+                Test[key]=[]
+                for array in SortedFileRef[depth]:
+                        for DataSet in Data[depth]:
+                                if float(DataSet.AcquisitionTime) == array:
+                                        SortedFile[key].append(DataSet)
+                                        Test[key].append(float(DataSet.AcquisitionTime))
+        
+        # Runs a simple test to highlight potential errors         
+        for depth in SortedFile:
+                for DataSet,index in zip(SortedFile[depth],range(len(SortedFile[depth]))):
+                        if float(DataSet.AcquisitionTime)==Test[depth][index]:
+                                continue
+                        else:
+                                print("Aquisition Times are not sorted correctly!")
+                                print("Exiting...")
+                                return 
+                                       
+        return SortedFile
+                        
 def OneDynamicSort(Data):
         
         Data = AquisitionTimeSort(Data)
