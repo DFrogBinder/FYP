@@ -80,6 +80,7 @@ def DGD_Sort(Data):
         return DGDs
 
 def Convert():
+        # Variable Declarations
         mhd_entry_list = []
         nifti_matrix = []
         locationMatrix = []
@@ -96,11 +97,25 @@ def Convert():
         # Detects operating system and sets the paths to the DICOMs
         if platform.system() == "Windows":
                 PathDicom = r'D:\IDL\Data\Leeds_Patient_10\19\DICOM'
+                Parts = PathDicom.split('\\')
         elif platform.system() == "Darwin":
                 PathDicom = "/Users/boyanivanov/Desktop/FYP/DICOM"
+                Parts = PathDicom.split('/')
         elif platform.system() == "Linux":
                 PathDicom = "/home/quaz/Desktop/FYP/DICOM"
+                Parts = PathDicom.split('/')
 
+        
+        if int(Parts[len(Parts)-2])==19:
+                flag = "T1"
+        elif int(Parts[len(Parts)-2])==30:
+                flag = "DTI"
+        elif int(Parts[len(Parts)-2])==39 | int(Parts[len(Parts)-1])== 40:
+                flag = "DCE"
+        else:
+                print("Unknown Modality!")
+                print("Exiting...")
+                return
         lstFilesDCM = []  # create an empty list
         for dirName, subdirList, fileList in os.walk(PathDicom):
                 for filename in fileList:
@@ -122,7 +137,7 @@ def Convert():
         # The array is sized based on 'ConstPixelDims'
         ArrayDicom = np.zeros(ConstPixelDims, dtype=RefDs.pixel_array.dtype)
 
-                #loop through all the DICOM files
+        #loop through all the DICOM files
         print("Loading Data...")
         for filenameDCM in tqdm(lstFilesDCM):
                 # read the file
@@ -135,19 +150,13 @@ def Convert():
                         Bval.append(ds[0x0019,0x100c].value)
                 except:
                         continue
-
-        locationMatrix = np.asarray(locationMatrix) 
-        locationMatrix = np.unique(locationMatrix)
-
-        Aqu = np.asarray(Aqu) 
-        Aqu = np.unique(Aqu)
         
-        DGD = np.asarray(DGD)
-        DGD = np.unique(DGD)
-
-        Bval = np.asarray(Bval)
-        Bval = np.unique(Bval)
-
+        # Convert to Numpy arrays and extract unique values
+        locationMatrix = np.unique(np.asarray(locationMatrix))
+        Aqu = np.unique(np.asarray(Aqu)) 
+        DGD = np.unique(np.asarray(DGD))
+        Bval = np.unique(np.asarray(Bval))
+ 
         print("Sorting Data...")
         for index,location in zip(tqdm(range(len(locationMatrix))),locationMatrix):
                 key =str(index)
@@ -157,7 +166,15 @@ def Convert():
                                 SortedImages[key].append(image)
       
         Indecies=list(chunks(range(0, 140), 5))
-        SortedNifti = OneDynamicSort(SortedImages)
+
+        if flag == 'T1' or flag == 'DCE':
+                SortedNifti = OneDynamicSort(SortedImages)
+        elif flag == 'DTI':
+                SortedNifti = DGD_Sort(SortedImages)
+        else:
+                print("Unknown Flag value!")
+                print("Exiting...")
+                return
         
         print('Exporting Data...')
         for nifti in tqdm(SortedNifti):
