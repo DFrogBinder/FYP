@@ -19,10 +19,11 @@ def add(number):
         return number+1
 
 def AquisitionTimeSort(Data):
-        for i in range(len(Data)):
+        SortedTimes=[0]
+        for i in range(len(Data['0'])):
                 for j in Data[str(i)]:
-                        if j.AcquisitionTime not in Data:
-                                print('Hello')
+                        if j.AcquisitionTime not in SortedTimes & min(np.asarray(SortedTimes)):
+                                SortedTimes.append(j)
 
 def InstanceNumberSort(Data):
         Test = []
@@ -36,17 +37,21 @@ def InstanceNumberSort(Data):
                                 if len(Test)==len(Data):
                                         flag = False
 def OneDynamicSort(Data):
+        
+        Data = AquisitionTimeSort(Data)
+
         OneDynamicSortMatrix={}
         for i in range(27):
                 key = str(i)
                 OneDynamicSortMatrix[key]=[]
         for dynamic in range(27):
                 for LocationNumber in Data:
-                        OneDynamicSortMatrix[str(dynamic)].append(Data[LocationNumber][int(dynamic)])
+                        OneDynamicSortMatrix[str(dynamic)].append(Data[LocationNumber][int(dynamic)].pixel_array)
         return OneDynamicSortMatrix
 
 def DGD_Sort(Data):
         DGDs ={}
+
         for i in range(146):
                 key = str(i)
                 DGDs[key]=[]
@@ -71,7 +76,7 @@ def Convert():
 
         # Detects operating system and sets the paths to the DICOMs
         if platform.system() == "Windows":
-                PathDicom = r'D:\IDL\Data\Leeds_Patient_10\30\DICOM'
+                PathDicom = r'D:\IDL\Data\Leeds_Patient_10\19\DICOM'
         elif platform.system() == "Darwin":
                 PathDicom = "/Users/boyanivanov/Desktop/FYP/DICOM"
         elif platform.system() == "Linux":
@@ -106,8 +111,11 @@ def Convert():
                 Data.append(ds)
                 locationMatrix.append(ds.SliceLocation)
                 Aqu.append(ds.AcquisitionTime)
-                DGD.append(ds[0x0019,0x100e].value)
-                Bval.append(ds[0x0019,0x100c].value)
+                try:
+                        DGD.append(ds[0x0019,0x100e].value)
+                        Bval.append(ds[0x0019,0x100c].value)
+                except:
+                        continue
 
         locationMatrix = np.asarray(locationMatrix) 
         locationMatrix = np.unique(locationMatrix)
@@ -130,20 +138,12 @@ def Convert():
                                 SortedImages[key].append(image)
       
         Indecies=list(chunks(range(0, 140), 5))
-        SortedNifti = DGD_Sort(SortedImages)
-        '''
-        for i in SortedImages:
-                for j,k in zip(SortedImages[i],range(len(SortedImages[i]))):
-                        if k not in SortedNifti:
-                                SortedNifti[k]=[]
-                                SortedNifti[k].append(j)
-                        else:
-                                SortedNifti[k].append(j)
-        '''
+        SortedNifti = OneDynamicSort(SortedImages)
+        
         print('Exporting Data...')
         for nifti in tqdm(SortedNifti):
                 File = np.asarray(SortedNifti[nifti]).T
-                ni = nib.Nifti1Image(np.flipud(File),affine=np.eye(4))
+                ni = nib.Nifti1Image(File,affine=np.eye(4))
                         
                 if os.path.exists(os.path.join('','Nifti_Export')):
                         nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(nifti)+'.nii.gz'][0]))
