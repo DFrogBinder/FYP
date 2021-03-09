@@ -56,16 +56,18 @@ def AquisitionTimeSort(Data):
         return SortedFile
                         
 def OneDynamicSort(Data):
-        
+       
         Data = AquisitionTimeSort(Data)
 
         OneDynamicSortMatrix={}
-        for i in range(27):
+
+        for i in range(len(Data['0'])):
                 key = str(i)
                 OneDynamicSortMatrix[key]=[]
-        for dynamic in range(27):
+        for dynamic in range(len(Data['0'])):
                 for LocationNumber in Data:
                         OneDynamicSortMatrix[str(dynamic)].append(Data[LocationNumber][int(dynamic)].pixel_array)
+
         return OneDynamicSortMatrix
 
 def DGD_Sort(Data):
@@ -96,7 +98,7 @@ def Convert():
 
         # Detects operating system and sets the paths to the DICOMs
         if platform.system() == "Windows":
-                PathDicom = r'D:\IDL\Data\Leeds_Patient_10\19\DICOM'
+                PathDicom = r'D:\IDL\Data\Leeds_Patient_10\39\DICOM'
                 Parts = PathDicom.split('\\')
         elif platform.system() == "Darwin":
                 PathDicom = "/Users/boyanivanov/Desktop/FYP/DICOM"
@@ -110,7 +112,7 @@ def Convert():
                 flag = "T1"
         elif int(Parts[len(Parts)-2])==30:
                 flag = "DTI"
-        elif int(Parts[len(Parts)-2])==39 | int(Parts[len(Parts)-1])== 40:
+        elif int(Parts[len(Parts)-2])==39 or int(Parts[len(Parts)-2])== 40:
                 flag = "DCE"
         else:
                 print("Unknown Modality!")
@@ -168,6 +170,8 @@ def Convert():
         Indecies=list(chunks(range(0, 140), 5))
 
         if flag == 'T1' or flag == 'DCE':
+                if flag == 'DCE':
+                        SortedImages.pop(str(len(SortedImages)-1))
                 SortedNifti = OneDynamicSort(SortedImages)
         elif flag == 'DTI':
                 SortedNifti = DGD_Sort(SortedImages)
