@@ -54,7 +54,22 @@ def AquisitionTimeSort(Data):
                                 return 
                                        
         return SortedFile
-                        
+def ManualRegSort(Data):
+
+        Data = AquisitionTimeSort(Data)
+        
+        SingleDynamicMatrix={}
+        # Select the first Slice
+        SData = Data['0']
+
+        for i in range(len(Data['0'])):
+                key = str(i)
+                SingleDynamicMatrix[key]=[]
+        for dynamic in range(len(Data['0'])):
+                SingleDynamicMatrix[str(dynamic)].append(SData[int(dynamic)].pixel_array)
+
+        return SingleDynamicMatrix
+
 def OneDynamicSort(Data):
        
         Data = AquisitionTimeSort(Data)
@@ -98,7 +113,7 @@ def Convert():
 
         # Detects operating system and sets the paths to the DICOMs
         if platform.system() == "Windows":
-                PathDicom = r'D:\IDL\Data\Leeds_Patient_10\39\DICOM'
+                PathDicom = r'D:\IDL\Data\Leeds_Patient_10\19\DICOM'
                 Parts = PathDicom.split('\\')
         elif platform.system() == "Darwin":
                 PathDicom = "/Users/boyanivanov/Desktop/FYP/DICOM"
@@ -172,7 +187,7 @@ def Convert():
         if flag == 'T1' or flag == 'DCE':
                 if flag == 'DCE':
                         SortedImages.pop(str(len(SortedImages)-1))
-                SortedNifti = OneDynamicSort(SortedImages)
+                SortedNifti = ManualRegSort(SortedImages)
         elif flag == 'DTI':
                 SortedNifti = DGD_Sort(SortedImages)
         else:
