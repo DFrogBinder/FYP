@@ -5,7 +5,6 @@ import numpy as np
 import SimpleITK as sitk
 import pydicom
 import platform
-from tqdm import tqdm 
 
 def chunks(lst, n):
                 """
