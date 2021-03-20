@@ -2,6 +2,8 @@ import numpy as np
 import SimpleITK as sitk
 import nibabel as nib
 import os
+import sys
+import subprocess
 from tqdm import tqdm
 
 '''
@@ -23,7 +25,7 @@ def load_itk(filename):
     return ct_scan
 
 # Filteres a filset and returns only the .mhd files
-def Mhd_Filter(FileSet):
+def GetImagesMHD(FileSet):
     MhdImages = []
     for entry in FileSet:
         if '.mhd' in entry:
@@ -51,15 +53,49 @@ def SaveImages(Images):
                     os.mkdir(os.path.join(os.getcwd(),'Nifti_Export'))
                     nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(nifti)+'.nii.gz'][0]))
                     counter = counter+1
+def CheckListForString(List,String):
+    Flag = False
+    for i in range(len(List)):
+        if String in List[i]:
+            Flag = True
+        else:
+            pass
+    return Flag
+def Elastix_Call(moving_image_path, fixed_image_path, output_dir, parameters_file):
+    if not os.path.isdir(output_dir):
+        os.mkdir(output_dir)
+    cmd = [ 'elastix', '-m', moving_image_path, '-f', fixed_image_path, '-out', output_dir, '-p', parameters_file]
+    try:
+        subprocess.check_call(cmd)
+    except:
+        print ('Image registration failed')
+        print (sys.exc_info())
 
+def Transformix_Call(output_dir, transform_parameters_file):
+    cmd = [ 'transformix', '-def', 'all', '-out', output_dir, '-tp', transform_parameters_file]
+    try:
+        subprocess.check_call(cmd)
+    except:
+        print ('Transformix failed')
+        print (sys.exc_info())
 
 def main(path):
     ImageMatrix=[]
 
     Folder_Contents = os.listdir(path)
-    Images = Mhd_Filter(Folder_Contents)
-    Images = MakeFilename(path,Images)
+    MHDImages = GetImagesMHD(Folder_Contents)
     
+    for nifti in range(len(Folder_Contents)):
+        UpdatedContent = os.listdir(path)
+        Param = 'D:\\IDL\\FYP\\Param.txt'
+        if CheckListForString(UpdatedContent,['result.'+str(nifti-1)+'.mhd'][0]):
+            Images = MakeFilename(path,[['result.'+str(nifti-1)+'.mhd'][0],['Slice'+str(nifti)+'.nii.gz'][0]])
+            Elastix_Call(Images[1],Images[0],path,Param)
+        else:
+            Images = MakeFilename(path, [['Slice'+str(nifti)+'.nii.gz'][0],['Slice'+str(nifti+1)+'.nii.gz'][0]])
+            Elastix_Call(Images[1],Images[0],path,Param)
+
+    Images = MakeFilename(path,Folder_Contents)
     for entry in Images:
         ImageMatrix.append(load_itk(entry))
     SaveImages(ImageMatrix)
