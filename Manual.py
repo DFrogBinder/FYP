@@ -39,15 +39,18 @@ def MakeFilename(path,Images):
 
 def SaveImages(Images):
     print('Exporting Data...')
+    counter = 0
     for nifti in tqdm(Images):
             File = np.asarray(nifti).T
             ni = nib.Nifti1Image(File,affine=np.eye(4))
                         
             if os.path.exists(os.path.join('','Nifti_Export')):
-                    nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(nifti)+'.nii.gz'][0]))
+                    nib.save(ni, os.path.join('Nifti_Export', ["MhD_Image"+str(counter)+'.nii.gz'][0]))
+                    counter = counter+1
             else:
                     os.mkdir(os.path.join(os.getcwd(),'Nifti_Export'))
                     nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(nifti)+'.nii.gz'][0]))
+                    counter = counter+1
 
 
 def main(path):
