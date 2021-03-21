@@ -4,6 +4,7 @@ import nibabel as nib
 import os
 import sys
 import subprocess
+from convert import Convert
 from tqdm import tqdm
 
 '''
@@ -81,7 +82,10 @@ def Transformix_Call(output_dir, transform_parameters_file):
 
 def main(path):
     ImageMatrix=[]
+    # Cleans up export folder and slices the data
+    Convert()
 
+    #Looks at the contents of the folder after data is sliced
     Folder_Contents = os.listdir(path)
     MHDImages = GetImagesMHD(Folder_Contents)
     
@@ -89,7 +93,7 @@ def main(path):
         UpdatedContent = os.listdir(path)
         Param = 'D:\\IDL\\FYP\\Param.txt'
         if CheckListForString(UpdatedContent,['result.'+str(nifti-1)+'.mhd'][0]):
-            Images = MakeFilename(path,[['result.'+str(nifti-1)+'.mhd'][0],['Slice'+str(nifti)+'.nii.gz'][0]])
+            Images = MakeFilename(path,[['result.'+str(nifti-1)+'.mhd'][0],['Slice'+str(nifti+1)+'.nii.gz'][0]])
             Elastix_Call(Images[1],Images[0],path,Param)
         else:
             Images = MakeFilename(path, [['Slice'+str(nifti)+'.nii.gz'][0],['Slice'+str(nifti+1)+'.nii.gz'][0]])

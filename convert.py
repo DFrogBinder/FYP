@@ -6,14 +6,6 @@ import pydicom
 import platform
 from tqdm import tqdm
 
-def chunks(lst, n):
-                """
-                Yield successive n-sized chunks from lst.   
-                https://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks
-                """
-                for i in range(0, len(lst), n):
-                        yield lst[i:i + n]
-
 def add(number):
         return number+1
 
@@ -94,7 +86,10 @@ def DGD_Sort(Data):
                 for LocationNumber in Data:
                         DGDs[str(dynamic)].append(Data[LocationNumber][int(dynamic)].pixel_array)
         return DGDs
-
+def CleanFolder(path):
+        Contents = os.listdir(path)
+        for entry in Contents:
+                os.remove(os.path.join(path,entry))
 def Convert():
         # Variable Declarations
         mhd_entry_list = []
@@ -181,8 +176,6 @@ def Convert():
                         if float(image.SliceLocation) == location:
                                 SortedImages[key].append(image)
       
-        Indecies=list(chunks(range(0, 140), 5))
-
         if flag == 'T1' or flag == 'DCE':
                 if flag == 'DCE':
                         SortedImages.pop(str(len(SortedImages)-1))
@@ -193,6 +186,8 @@ def Convert():
                 print("Unknown Flag value!")
                 print("Exiting...")
                 return
+
+        CleanFolder(os.path.join('','Nifti_Export'))
         
         print('Exporting Data...')
         for nifti in tqdm(SortedNifti):
@@ -206,5 +201,3 @@ def Convert():
                         nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(nifti)+'.nii.gz'][0]))
 
         print("Data is exported!")
-
-Convert()
