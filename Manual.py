@@ -105,7 +105,7 @@ def main(path):
             RenameResultFile(path,nifti)
             PathToFixedImage=Images[0]
 
-    Images = MakeFilename(path,Folder_Contents)
+    Images = MakeFilename(path,GetImagesMHD(os.listdir(path)))
     for entry in Images:
         ImageMatrix.append(load_itk(entry))
     SaveImages(ImageMatrix)
