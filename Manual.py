@@ -62,7 +62,7 @@ def CheckListForString(List,String):
         else:
             pass
     return Flag
-def Elastix_Call(moving_image_path, fixed_image_path, output_dir, parameters_file):
+def Elastix_Call(moving_image_path,fixed_image_path, output_dir, parameters_file):
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
     cmd = [ 'elastix', '-m', moving_image_path, '-f', fixed_image_path, '-out', output_dir, '-p', parameters_file]
@@ -79,6 +79,8 @@ def Transformix_Call(output_dir, transform_parameters_file):
     except:
         print ('Transformix failed')
         print (sys.exc_info())
+def RenameResultFile(Contents,Counter):
+    os.rename('Nifti_Export\\result.0.mhd','Nifti_Export\\result'+str(Counter)+'.mhd')
 
 def main(path):
     ImageMatrix=[]
@@ -88,16 +90,20 @@ def main(path):
     #Looks at the contents of the folder after data is sliced
     Folder_Contents = os.listdir(path)
     MHDImages = GetImagesMHD(Folder_Contents)
-    
+    PathToFixedImage=[]
+
     for nifti in range(len(Folder_Contents)):
         UpdatedContent = os.listdir(path)
         Param = 'D:\\IDL\\FYP\\Param.txt'
-        if CheckListForString(UpdatedContent,['result.'+str(nifti-1)+'.mhd'][0]):
-            Images = MakeFilename(path,[['result.'+str(nifti-1)+'.mhd'][0],['Slice'+str(nifti+1)+'.nii.gz'][0]])
-            Elastix_Call(Images[1],Images[0],path,Param)
+        if CheckListForString(UpdatedContent,['result'+str(nifti-1)+'.mhd'][0]):
+            Images = MakeFilename(path,[['result'+str(nifti-1)+'.mhd'][0],['Slice'+str(nifti+1)+'.nii.gz'][0]])
+            Elastix_Call(Images[0],PathToFixedImage,path,Param)
+            RenameResultFile(path,nifti)
         else:
             Images = MakeFilename(path, [['Slice'+str(nifti)+'.nii.gz'][0],['Slice'+str(nifti+1)+'.nii.gz'][0]])
             Elastix_Call(Images[1],Images[0],path,Param)
+            RenameResultFile(path,nifti)
+            PathToFixedImage=Images[0]
 
     Images = MakeFilename(path,Folder_Contents)
     for entry in Images:
