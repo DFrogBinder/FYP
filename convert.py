@@ -90,7 +90,7 @@ def CleanFolder(path):
         Contents = os.listdir(path)
         for entry in Contents:
                 os.remove(os.path.join(path,entry))
-def Convert():
+def Convert(PathDicom):
         # Variable Declarations
         mhd_entry_list = []
         nifti_matrix = []
@@ -107,13 +107,10 @@ def Convert():
 
         # Detects operating system and sets the paths to the DICOMs
         if platform.system() == "Windows":
-                PathDicom = r'D:\IDL\Data\Leeds_Patient_10\19\DICOM'
                 Parts = PathDicom.split('\\')
         elif platform.system() == "Darwin":
-                PathDicom = "/Users/boyanivanov/Desktop/FYP/DICOM"
                 Parts = PathDicom.split('/')
         elif platform.system() == "Linux":
-                PathDicom = "/home/quaz/Desktop/FYP/DICOM"
                 Parts = PathDicom.split('/')
 
         

@@ -53,7 +53,7 @@ def SaveImages(Images):
             ni = nib.Nifti1Image(File,affine=np.eye(4))
                         
             if os.path.exists(os.path.join('','Nifti_Export')):
-                    nib.save(ni, os.path.join('Nifti_Export', ["MhD_Image"+str(counter)+'.nii.gz'][0]))
+                    nib.save(ni, os.path.join('Nifti_Export', ["Slice"+str(counter)+'.nii.gz'][0]))
                     counter = counter+1
             else:
                     os.mkdir(os.path.join(os.getcwd(),'Nifti_Export'))
@@ -76,6 +76,7 @@ def Elastix_Call(moving_image_path,fixed_image_path, output_dir, parameters_file
     except:
         print ('Image registration failed')
         print (sys.exc_info())
+        return
 
 def Transformix_Call(output_dir, transform_parameters_file):
     cmd = [ 'transformix', '-def', 'all', '-out', output_dir, '-tp', transform_parameters_file]
@@ -90,34 +91,27 @@ def RenameResultFile(Contents,Counter):
 def main(path):
     ImageMatrix=[]
     # Cleans up export folder and slices the data
-    Convert()
+    Convert('D:\\IDL\\Data\\Leeds_Patient_10\\19\\DICOM')
 
     #Looks at the contents of the folder after data is sliced
     Folder_Contents = os.listdir(path)
     MHDImages = GetImagesMHD(Folder_Contents)
-    PathToFixedImage=[]
-    '''
-    for nifti in range(len(Folder_Contents)):
-        UpdatedContent = os.listdir(path)
-        Param = 'D:\\IDL\\FYP\\Param.txt'
-        if CheckListForString(UpdatedContent,['Result'+str(nifti-1)+'.mhd'][0]):
-            MhdToNifti(path,os.path.join(path,['Result'+str(nifti-1)+'.mhd'][0]),nifti)
-            Images = MakeFilename(path,[['Result'+str(nifti-1)+'.nii.gz'][0]])
-            Elastix_Call(Images[0],PathToFixedImage,path,Param)
-            RenameResultFile(path,nifti)
-        else:
-            Images = MakeFilename(path, [['Slice'+str(nifti)+'.nii.gz'][0],['Slice'+str(nifti+1)+'.nii.gz'][0]])
-            Elastix_Call(Images[1],Images[0],path,Param)
-            RenameResultFile(path,nifti)
-            PathToFixedImage=Images[0]
-    '''
+    OG_GZ=[]
+
+    # Reduce Number of Dimetions from [384,384,1] to [384,384]
+    for gz in Folder_Contents:
+        im = load_itk(os.path.join(path,gz))
+        im = np.reshape(im,[384,384])
+        OG_GZ.append(im)
+    SaveImages(OG_GZ)
+    
     FixedImagePath = os.path.join(path,'Slice0.nii.gz')
-    Param = 'D:\\IDL\\FYP\\Param.txt'
-    for nifti in range(len(Folder_Contents)):
+    Param = 'D:\\IDL\\FYP\\BSplines_T1.txt'
+    for nifti in range(len(Folder_Contents)-1):
         Images = MakeFilename(path, [['Slice'+str(nifti+1)+'.nii.gz'][0]])
         Elastix_Call(Images[0],FixedImagePath,path,Param)
         RenameResultFile(path,nifti)
-        MhdToNifti(path,os.path.join(path,['Result'+str(nifti)+'.mhd'][0]),nifti)
+        MhdToNifti(path,os.path.join(path,['Result'+str(nifti)+'.mhd'][0]),nifti+1)
     
     Images = MakeFilename(path,GetImagesMHD(os.listdir(path)))
     for entry in Images:
