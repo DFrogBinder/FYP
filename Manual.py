@@ -106,7 +106,7 @@ def main(path):
     SaveImages(OG_GZ)
     
     FixedImagePath = os.path.join(path,'Slice0.nii.gz')
-    Param = 'D:\\IDL\\FYP\\BSplines_T1.txt'
+    Param = 'D:\\IDL\\FYP\\Param.txt'
     for nifti in range(len(Folder_Contents)-1):
         Images = MakeFilename(path, [['Slice'+str(nifti+1)+'.nii.gz'][0]])
         Elastix_Call(Images[0],FixedImagePath,path,Param)
