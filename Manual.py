@@ -39,6 +39,11 @@ def MakeFilename(path,Images):
     for image in Images:
         FullPath.append(os.path.join(path,image))
     return FullPath
+def MhdToNifti(PathToFolder,PathToFile,counter):
+    File = load_itk(PathToFile)
+    ni = nib.Nifti1Image(File.T,affine=np.eye(4))
+    nib.save(ni,os.path.join(PathToFolder,['Resut'+str(counter)+'.nii.gz'][0]))
+    return ni
 
 def SaveImages(Images):
     print('Exporting Data...')
@@ -65,7 +70,7 @@ def CheckListForString(List,String):
 def Elastix_Call(moving_image_path,fixed_image_path, output_dir, parameters_file):
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
-    cmd = [ 'elastix', '-m', moving_image_path, '-f', fixed_image_path, '-out', output_dir, '-p', parameters_file]
+    cmd = [ 'elastix', '-f', fixed_image_path,'-m', moving_image_path, '-out', output_dir, '-p', parameters_file]
     try:
         subprocess.check_call(cmd)
     except:
@@ -80,7 +85,7 @@ def Transformix_Call(output_dir, transform_parameters_file):
         print ('Transformix failed')
         print (sys.exc_info())
 def RenameResultFile(Contents,Counter):
-    os.rename('Nifti_Export\\result.0.mhd','Nifti_Export\\result'+str(Counter)+'.mhd')
+    os.rename('Nifti_Export\\result.0.mhd','Nifti_Export\\Result'+str(Counter)+'.mhd')
 
 def main(path):
     ImageMatrix=[]
@@ -91,12 +96,13 @@ def main(path):
     Folder_Contents = os.listdir(path)
     MHDImages = GetImagesMHD(Folder_Contents)
     PathToFixedImage=[]
-
+    '''
     for nifti in range(len(Folder_Contents)):
         UpdatedContent = os.listdir(path)
         Param = 'D:\\IDL\\FYP\\Param.txt'
-        if CheckListForString(UpdatedContent,['result'+str(nifti-1)+'.mhd'][0]):
-            Images = MakeFilename(path,[['result'+str(nifti-1)+'.mhd'][0],['Slice'+str(nifti+1)+'.nii.gz'][0]])
+        if CheckListForString(UpdatedContent,['Result'+str(nifti-1)+'.mhd'][0]):
+            MhdToNifti(path,os.path.join(path,['Result'+str(nifti-1)+'.mhd'][0]),nifti)
+            Images = MakeFilename(path,[['Result'+str(nifti-1)+'.nii.gz'][0]])
             Elastix_Call(Images[0],PathToFixedImage,path,Param)
             RenameResultFile(path,nifti)
         else:
@@ -104,7 +110,15 @@ def main(path):
             Elastix_Call(Images[1],Images[0],path,Param)
             RenameResultFile(path,nifti)
             PathToFixedImage=Images[0]
-
+    '''
+    FixedImagePath = os.path.join(path,'Slice0.nii.gz')
+    Param = 'D:\\IDL\\FYP\\Param.txt'
+    for nifti in range(len(Folder_Contents)):
+        Images = MakeFilename(path, [['Slice'+str(nifti+1)+'.nii.gz'][0]])
+        Elastix_Call(Images[0],FixedImagePath,path,Param)
+        RenameResultFile(path,nifti)
+        MhdToNifti(path,os.path.join(path,['Result'+str(nifti)+'.mhd'][0]),nifti)
+    
     Images = MakeFilename(path,GetImagesMHD(os.listdir(path)))
     for entry in Images:
         ImageMatrix.append(load_itk(entry))
