@@ -45,6 +45,27 @@ def AquisitionTimeSort(Data):
                                 return 
                                        
         return SortedFile
+def FlattenDickt(Data):
+        Flat=[]
+        for i in range(len(Data)):
+                for j in range(len(Data[str(i)])):
+                        Flat.append(Data[str(i)][j].pixel_array)
+        return Flat
+def UNetSort(Data):
+        Data = AquisitionTimeSort(Data)
+        SingleDynamicMatrix={}
+        SliceMatrix={}
+        FlatData = FlattenDickt(Data)
+        for i in range(len(Data['0'])):
+                key=str(i)
+                SliceMatrix[key]=[]
+
+        for dynamic in SliceMatrix:
+                Indecies = np.arange(int(dynamic),len(FlatData),28)
+                for index in Indecies:
+                        SliceMatrix[dynamic].append(FlatData[index])
+        return SliceMatrix
+
 def ManualRegSort(Data):
 
         Data = AquisitionTimeSort(Data)
@@ -176,9 +197,9 @@ def Convert(PathDicom):
         if flag == 'T1' or flag == 'DCE':
                 if flag == 'DCE':
                         SortedImages.pop(str(len(SortedImages)-1))
-                SortedNifti = ManualRegSort(SortedImages)
+                SortedNifti = UNetSort(SortedImages)
         elif flag == 'DTI':
-                SortedNifti = DGD_Sort(SortedImages)
+                SortedNifti = ManualRegSort(SortedImages)
         else:
                 print("Unknown Flag value!")
                 print("Exiting...")
