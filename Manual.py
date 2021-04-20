@@ -101,10 +101,10 @@ def main(path):
     # Reduce Number of Dimetions from [384,384,1] to [384,384]
     for gz in Folder_Contents:
         im = load_itk(os.path.join(path,gz))
-        im = np.reshape(im,[im.shape[1],im.shape[2]])
+        #im = np.reshape(im,[im.shape[1],im.shape[2]])
         OG_GZ.append(im)
     SaveImages(OG_GZ)
-    
+
     FixedImagePath = os.path.join(path,'Slice0.nii.gz')
     Param = 'D:\\IDL\\FYP\\Param.txt'
     for nifti in range(len(Folder_Contents)-1):

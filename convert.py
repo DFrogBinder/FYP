@@ -72,7 +72,7 @@ def ManualRegSort(Data):
         
         SingleDynamicMatrix={}
         # Select the first Slice
-        SData = Data['0']
+        SData = Data['3']
 
         for i in range(len(Data['0'])):
                 key = str(i)
@@ -111,7 +111,7 @@ def CleanFolder(path):
         Contents = os.listdir(path)
         for entry in Contents:
                 os.remove(os.path.join(path,entry))
-def Convert(PathDicom):
+def Convert(PathDicom,Mode):
         # Variable Declarations
         mhd_entry_list = []
         nifti_matrix = []
@@ -135,7 +135,7 @@ def Convert(PathDicom):
                 Parts = PathDicom.split('/')
 
         
-        if int(Parts[len(Parts)-2])==19:
+        if str(Parts[len(Parts)-2])==[str(19)+'_unknown'][0] or [str(20)+'_unknown'][0] or [str(22)+'_unknown'][0] or [str(23)+'_unknown'][0] or [str(25)+'_unknown'][0] or [str(29)+'_unknown'][0]:
                 flag = "T1"
         elif int(Parts[len(Parts)-2])==30:
                 flag = "DTI"
@@ -193,11 +193,11 @@ def Convert(PathDicom):
                 for image in Data:
                         if float(image.SliceLocation) == location:
                                 SortedImages[key].append(image)
-      
+
         if flag == 'T1' or flag == 'DCE':
                 if flag == 'DCE':
                         SortedImages.pop(str(len(SortedImages)-1))
-                SortedNifti = UNetSort(SortedImages)
+                SortedNifti = OneDynamicSort(SortedImages)
         elif flag == 'DTI':
                 SortedNifti = ManualRegSort(SortedImages)
         else:
@@ -206,16 +206,26 @@ def Convert(PathDicom):
                 return
 
         CleanFolder(os.path.join('','Nifti_Export'))
-        
+        SortedNifti = SortedNifti
         print('Exporting Data...')
         for nifti in tqdm(SortedNifti):
                 File = np.asarray(SortedNifti[nifti]).T
                 ni = nib.Nifti1Image(File,affine=np.eye(4))
-                        
-                if os.path.exists(os.path.join('','Nifti_Export')):
-                        nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(nifti)+'.nii.gz'][0]))
+                if Mode != 'Train':        
+                        if os.path.exists(os.path.join('','Nifti_Export')):
+                                nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(nifti)+'.nii.gz'][0]))
+                        else:
+                                os.mkdir(os.path.join(os.getcwd(),'Nifti_Export'))
+                                nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(nifti)+'.nii.gz'][0]))
+                elif Mode == 'Train':
+                        ResultFolder = os.path.join(PathDicom,'Nifti_Export')
+                        if os.path.exists(ResultFolder):
+                                nib.save(ni, os.path.join(ResultFolder, ['Slice'+str(nifti)+'.nii.gz'][0]))
+                        else:
+                                os.mkdir(ResultFolder)
+                                nib.save(ni, os.path.join(ResultFolder, ['Slice'+str(nifti)+'.nii.gz'][0]))
                 else:
-                        os.mkdir(os.path.join(os.getcwd(),'Nifti_Export'))
-                        nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(nifti)+'.nii.gz'][0]))
+                        print('Unrecognised mode, exiting...')
+                        return
 
         print("Data is exported!")
