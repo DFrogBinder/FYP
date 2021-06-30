@@ -8,7 +8,16 @@ from tqdm import tqdm
 
 def add(number):
         return number+1
-
+def FixedImageSort(Data):
+        FF = []
+        SF = []
+        # Sets the first file as fixed images
+        for i in range(0,len(Data)-1):
+                FF.append(Data[0].pixel_array)
+                SF.append(Data[i+1].pixel_array)
+        #SF.pop(0)
+        return SF,FF
+        
 def AquisitionTimeSort(Data):
         SortedFile={}
         SortedFileRef = {}
@@ -194,29 +203,34 @@ def Convert(PathDicom,Mode):
                         if float(image.SliceLocation) == location:
                                 SortedImages[key].append(image)
 
+        SF,FF = FixedImageSort(SortedImages['3'])
+        
+        '''
         if flag == 'T1' or flag == 'DCE':
                 if flag == 'DCE':
                         SortedImages.pop(str(len(SortedImages)-1))
-                SortedNifti = OneDynamicSort(SortedImages)
+                SortedNifti = FixedImageSort(SortedImages['3'])
         elif flag == 'DTI':
                 SortedNifti = ManualRegSort(SortedImages)
         else:
                 print("Unknown Flag value!")
                 print("Exiting...")
                 return
-
+        
         CleanFolder(os.path.join('','Nifti_Export'))
         SortedNifti = SortedNifti
+        '''
+        SortedNifti=FF
         print('Exporting Data...')
-        for nifti in tqdm(SortedNifti):
-                File = np.asarray(SortedNifti[nifti]).T
+        for i,nifti in zip(range(0,len(SortedNifti)),tqdm(SortedNifti)):
+                File = np.asarray(SortedNifti[i].pixel_array).T
                 ni = nib.Nifti1Image(File,affine=np.eye(4))
                 if Mode != 'Train':        
                         if os.path.exists(os.path.join('','Nifti_Export')):
-                                nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(nifti)+'.nii.gz'][0]))
+                                nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(i)+'.nii.gz'][0]))
                         else:
                                 os.mkdir(os.path.join(os.getcwd(),'Nifti_Export'))
-                                nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(nifti)+'.nii.gz'][0]))
+                                nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(i)+'.nii.gz'][0]))
                 elif Mode == 'Train':
                         ResultFolder = os.path.join(PathDicom,'Nifti_Export')
                         if os.path.exists(ResultFolder):
@@ -229,3 +243,4 @@ def Convert(PathDicom,Mode):
                         return
 
         print("Data is exported!")
+Convert('/Users/boyanivanov/Documents/Temp_Data/scans','n/a')
