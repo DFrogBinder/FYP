@@ -8,6 +8,16 @@ from tqdm import tqdm
 
 def add(number):
         return number+1
+def GroupedImageSort(Data):
+        Images={}
+        NumberOfDynamics=len(Data['0'])  # Checks number of dynamics in first slice
+        for i in range(NumberOfDynamics):
+                Images[i]=[]
+                for d in Data:
+                        tVar = Data[d]
+                        Images[i].append(tVar[i])
+        return Images
+                
 def FixedImageSort(Data):
         FF = []
         SF = []
@@ -16,8 +26,7 @@ def FixedImageSort(Data):
                 FF.append(Data[0].pixel_array)
                 SF.append(Data[i+1].pixel_array)
         #SF.pop(0)
-        return SF,FF
-        
+        return SF,FF  
 def AquisitionTimeSort(Data):
         SortedFile={}
         SortedFileRef = {}
@@ -203,13 +212,13 @@ def Convert(PathDicom,Mode):
                         if float(image.SliceLocation) == location:
                                 SortedImages[key].append(image)
 
-        SF,FF = FixedImageSort(SortedImages['3'])
+        #SF,FF = FixedImageSort(SortedImages['3'])
         
-        '''
+        
         if flag == 'T1' or flag == 'DCE':
                 if flag == 'DCE':
                         SortedImages.pop(str(len(SortedImages)-1))
-                SortedNifti = FixedImageSort(SortedImages['3'])
+                SortedNifti = GroupedImageSort(SortedImages)
         elif flag == 'DTI':
                 SortedNifti = ManualRegSort(SortedImages)
         else:
@@ -218,9 +227,7 @@ def Convert(PathDicom,Mode):
                 return
         
         CleanFolder(os.path.join('','Nifti_Export'))
-        SortedNifti = SortedNifti
-        '''
-        SortedNifti=FF
+        
         print('Exporting Data...')
         for i,nifti in zip(range(0,len(SortedNifti)),tqdm(SortedNifti)):
                 File = np.asarray(SortedNifti[i].pixel_array).T
@@ -243,4 +250,3 @@ def Convert(PathDicom,Mode):
                         return
 
         print("Data is exported!")
-Convert('/Users/boyanivanov/Documents/Temp_Data/scans','n/a')
