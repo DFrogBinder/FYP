@@ -15,7 +15,7 @@ def GroupedImageSort(Data):
                 Images[i]=[]
                 for d in Data:
                         tVar = Data[d]
-                        Images[i].append(tVar[i])
+                        Images[i].append(tVar[i].pixel_array)
         return Images
                 
 def FixedImageSort(Data):
@@ -230,7 +230,7 @@ def Convert(PathDicom,Mode):
         
         print('Exporting Data...')
         for i,nifti in zip(range(0,len(SortedNifti)),tqdm(SortedNifti)):
-                File = np.asarray(SortedNifti[i].pixel_array).T
+                File = np.asarray(SortedNifti[i]).T
                 ni = nib.Nifti1Image(File,affine=np.eye(4))
                 if Mode != 'Train':        
                         if os.path.exists(os.path.join('','Nifti_Export')):
