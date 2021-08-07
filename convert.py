@@ -8,10 +8,17 @@ from tqdm import tqdm
 
 def add(number):
         return number+1
+def SingleSliceSort(Data):
+     Images=[]
+     Data = Data['3']
+     for i in Data:   
+             Images.append(i.pixel_array)
+     return Images
+
 def GroupedImageSort(Data):
         Images={}
         NumberOfDynamics=len(Data['0'])  # Checks number of dynamics in first slice
-        for i in range(NumberOfDynamics):
+        for i in range(28):
                 Images[i]=[]
                 for d in Data:
                         tVar = Data[d]
@@ -218,7 +225,7 @@ def Convert(PathDicom,Mode):
         if flag == 'T1' or flag == 'DCE':
                 if flag == 'DCE':
                         SortedImages.pop(str(len(SortedImages)-1))
-                SortedNifti = GroupedImageSort(SortedImages)
+                SortedNifti = SingleSliceSort(SortedImages)
         elif flag == 'DTI':
                 SortedNifti = ManualRegSort(SortedImages)
         else:
@@ -241,10 +248,10 @@ def Convert(PathDicom,Mode):
                 elif Mode == 'Train':
                         ResultFolder = os.path.join(PathDicom,'Nifti_Export')
                         if os.path.exists(ResultFolder):
-                                nib.save(ni, os.path.join(ResultFolder, ['Slice'+str(nifti)+'.nii.gz'][0]))
+                                nib.save(ni, os.path.join(ResultFolder, ['Slice'+str(i)+'.nii.gz'][0]))
                         else:
                                 os.mkdir(ResultFolder)
-                                nib.save(ni, os.path.join(ResultFolder, ['Slice'+str(nifti)+'.nii.gz'][0]))
+                                nib.save(ni, os.path.join(ResultFolder, ['Slice'+str(i)+'.nii.gz'][0]))
                 else:
                         print('Unrecognised mode, exiting...')
                         return
