@@ -5,7 +5,11 @@ import SimpleITK as sitk
 import pydicom
 import platform
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
+def Add_Noise(Data,Dim):
+    noise = np.random.normal(0,1,[Dim[0],Dim[1]])
+    return Data + noise
 def add(number):
         return number+1
 def SingleSliceSort(Data):
@@ -26,12 +30,18 @@ def GroupedImageSort(Data):
         return Images
                 
 def FixedImageSort(Data):
-        FF = []
-        SF = []
+        FF = {}
+        SF = {}
+
+        for i in range(5):
+                FF[str(i)]=[]
+                SF[str(i)]=[]
         # Sets the first file as fixed images
-        for i in range(0,len(Data)-1):
-                FF.append(Data[0].pixel_array)
-                SF.append(Data[i+1].pixel_array)
+        for i in Data:
+                for j in range(len(Data[i])-1):
+                        Augmented_Fixed_Image = Add_Noise(Data[i][0].pixel_array,Data[i][0].pixel_array.shape)
+                        FF[i].append(Augmented_Fixed_Image)
+                        SF[i].append(Data[i][j+1].pixel_array)
         #SF.pop(0)
         return SF,FF  
 def AquisitionTimeSort(Data):
@@ -225,7 +235,7 @@ def Convert(PathDicom,Mode):
         if flag == 'T1' or flag == 'DCE':
                 if flag == 'DCE':
                         SortedImages.pop(str(len(SortedImages)-1))
-                SortedNifti = SingleSliceSort(SortedImages)
+                SortedNifti = FixedImageSort(SortedImages)
         elif flag == 'DTI':
                 SortedNifti = ManualRegSort(SortedImages)
         else:
@@ -237,21 +247,32 @@ def Convert(PathDicom,Mode):
         
         print('Exporting Data...')
         for i,nifti in zip(range(0,len(SortedNifti)),tqdm(SortedNifti)):
-                File = np.asarray(SortedNifti[i]).T
-                ni = nib.Nifti1Image(File,affine=np.eye(4))
-                if Mode != 'Train':        
+                if Mode != 'Train': 
+                        File = np.asarray(SortedNifti[i]).T
+                        ni = nib.Nifti1Image(File,affine=np.eye(4))       
                         if os.path.exists(os.path.join('','Nifti_Export')):
                                 nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(i)+'.nii.gz'][0]))
                         else:
                                 os.mkdir(os.path.join(os.getcwd(),'Nifti_Export'))
                                 nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(i)+'.nii.gz'][0]))
                 elif Mode == 'Train':
-                        ResultFolder = os.path.join(PathDicom,'Nifti_Export')
-                        if os.path.exists(ResultFolder):
-                                nib.save(ni, os.path.join(ResultFolder, ['Slice'+str(i)+'.nii.gz'][0]))
-                        else:
-                                os.mkdir(ResultFolder)
-                                nib.save(ni, os.path.join(ResultFolder, ['Slice'+str(i)+'.nii.gz'][0]))
+                        for Slice in SortedNifti[i]:
+                                File = np.asarray(SortedNifti[i][Slice]).T
+                                ni = nib.Nifti1Image(File,affine=np.eye(4))
+                                ResultFolder = os.path.join(PathDicom,'Nifti_Export')
+                                if os.path.exists(ResultFolder):
+                                        if i == 0:
+                                                nib.save(ni, os.path.join(ResultFolder, ['Slice_'+'Moving_'+str(Slice)+'.nii.gz'][0]))
+                                        elif i == 1:
+                                                nib.save(ni, os.path.join(ResultFolder, ['Slice_'+'Fixed_'+str(Slice)+'.nii.gz'][0]))
+                                                
+                                else:
+                                        os.mkdir(ResultFolder)
+                                        if i == 0:
+                                                nib.save(ni, os.path.join(ResultFolder, ['Slice_'+'Moving_'+str(Slice)+'.nii.gz'][0]))
+                                        elif i == 1:
+                                                nib.save(ni, os.path.join(ResultFolder, ['Slice_'+'Fixed_'+str(Slice)+'.nii.gz'][0]))
+                                        
                 else:
                         print('Unrecognised mode, exiting...')
                         return
