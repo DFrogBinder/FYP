@@ -25,4 +25,4 @@ def SliceData(PathToZip):
         PathToDicom = os.path.join(os.path.join(os.path.join(PathToScans,tFolder[0]),os.listdir(os.path.join(PathToScans,tFolder[0]))[0]))
 
         Convert(PathToDicom,'Train')
-SliceData('/Users/boyanivanov/Documents/Temp_Data/ML_Data')
+SliceData('/Users/boyanivanov/Documents/Temp_Data/ML_Data/')

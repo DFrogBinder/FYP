@@ -248,8 +248,9 @@ def Convert(PathDicom,Mode):
         print('Exporting Data...')
         for i,nifti in zip(range(0,len(SortedNifti)),tqdm(SortedNifti)):
                 if Mode != 'Train': 
-                        File = np.asarray(SortedNifti[i]).T
-                        ni = nib.Nifti1Image(File,affine=np.eye(4))       
+                        File = np.asarray(SortedNifti[str(i)]).T
+                        ni = nib.Nifti1Image(File,affine=np.eye(4))   
+                        ResultFolder = os.path.join(PathDicom,'Nifti_Export') 
                         if os.path.exists(os.path.join('','Nifti_Export')):
                                 nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(i)+'.nii.gz'][0]))
                         else:
@@ -277,4 +278,4 @@ def Convert(PathDicom,Mode):
                         print('Unrecognised mode, exiting...')
                         return
 
-        print("Data is exported!")
+        print("Data is exported to "+str(ResultFolder))
