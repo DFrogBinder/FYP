@@ -20,9 +20,9 @@
   "inference_set": "validation",
   "validate_every" : 5,
   "save_image_every" : 50,
-  "train_data_folder" : "THE DIRECTORY FOR YOUR TRAIN DATA",
-  "validation_data_folder" : "THE DIRECTORY FOR YOUR VALIDATION DATA",
-  "test_data_folder" : "THE DIRECTORY FOR YOUR TEST DATA",
-  "exp_log_path":"THE ROOT DIRECTORY FOR YOUR EXPERIMENTS",
+  "train_data_folder" : "",
+  "validation_data_folder" : "",
+  "test_data_folder": "",
+  "exp_log_path":"",
   "exp_name":"test"
 }
