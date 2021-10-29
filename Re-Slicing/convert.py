@@ -28,7 +28,10 @@ def GroupedImageSort(Data):
                         tVar = Data[d]
                         Images[i].append(tVar[i].pixel_array)
         return Images
-                
+
+def DTI_Image_Sort(Data):
+        return                
+
 def FixedImageSort(Data):
         FF = {}
         SF = {}
@@ -170,11 +173,18 @@ def Convert(PathDicom,Mode):
                 Parts = PathDicom.split('/')
 
         
-        if str(Parts[len(Parts)-2])==[str(19)+'_unknown'][0] or [str(20)+'_unknown'][0] or [str(22)+'_unknown'][0] or [str(23)+'_unknown'][0] or [str(25)+'_unknown'][0] or [str(29)+'_unknown'][0]:
+        if (str(Parts[len(Parts)-2])==[str(19)+'_unknown'][0] or 
+            str(Parts[len(Parts)-2])==[str(20)+'_unknown'][0] or 
+            str(Parts[len(Parts)-2])==[str(22)+'_unknown'][0] or 
+            str(Parts[len(Parts)-2])==[str(23)+'_unknown'][0] or 
+            str(Parts[len(Parts)-2])==[str(25)+'_unknown'][0] or 
+            str(Parts[len(Parts)-2])==[str(29)+'_unknown'][0]):
                 flag = "T1"
-        elif int(Parts[len(Parts)-2])==30:
+        elif (str(Parts[len(Parts)-2])==[str(30)+'_unknown'][0] or 
+              str(Parts[len(Parts)-2])==[str(31)+'_unknown'][0]):
                 flag = "DTI"
-        elif int(Parts[len(Parts)-2])==39 or int(Parts[len(Parts)-2])== 40:
+        elif (str(Parts[len(Parts)-2])==[str(39)+'_unknown'][0] or 
+              str(Parts[len(Parts)-2])==[str(40)+'_unknown'][0]):
                 flag = "DCE"
         else:
                 print("Unknown Modality!")
@@ -237,7 +247,7 @@ def Convert(PathDicom,Mode):
                         SortedImages.pop(str(len(SortedImages)-1))
                 SortedNifti = FixedImageSort(SortedImages)
         elif flag == 'DTI':
-                SortedNifti = ManualRegSort(SortedImages)
+                SortedNifti = DTI_Image_Sort(SortedImages)
         else:
                 print("Unknown Flag value!")
                 print("Exiting...")
