@@ -9,7 +9,7 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
     if train_data_folder is not None:
 
         train_images_dir = Path(os.path.join(train_data_folder, 'images'))
-        train_image_paths = sorted(train_images_dir.glob('*.mha'))
+        train_image_paths = sorted(train_images_dir.glob('*.nii.gz'))
 
         train_subjects = []
         for image_path in train_image_paths:
@@ -55,7 +55,7 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
     if validation_data_folder is not None:
 
         validation_images_dir = Path(os.path.join(validation_data_folder, 'images'))
-        validation_image_paths = sorted(validation_images_dir.glob('*.mha'))
+        validation_image_paths = sorted(validation_images_dir.glob('*.nii.gz'))
 
         validation_subjects = []
         for image_path in validation_image_paths:
@@ -81,7 +81,7 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
     if test_data_folder is not None:
 
         test_images_dir = Path(os.path.join(test_data_folder, 'images'))
-        test_image_paths = sorted(test_images_dir.glob('*.mha'))
+        test_image_paths = sorted(test_images_dir.glob('*.nii.gz'))
 
         test_subjects = []
         for image_path in test_image_paths:
@@ -109,7 +109,7 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
     if debug_data_folder is not None:
 
         debug_images_dir = Path(os.path.join(debug_data_folder, 'images'))
-        debug_image_paths = [sorted(debug_images_dir.glob('*.mha'))[0]]
+        debug_image_paths = [sorted(debug_images_dir.glob('*.nii.gz'))[0]]
 
         debug_subjects = []
         for image_path in debug_image_paths:

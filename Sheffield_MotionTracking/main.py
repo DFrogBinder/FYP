@@ -1,5 +1,5 @@
 import argparse
-from agents import *
+from agents.groupAgent import groupAgent
 from utils.config import get_config_from_json, setup_logging
 import sys, os
 from shutil import copyfile
