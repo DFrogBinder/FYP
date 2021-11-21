@@ -4,15 +4,15 @@ from utils.config import get_config_from_json, setup_logging
 import sys, os
 from shutil import copyfile
 
-def main():
+arg_parser = argparse.ArgumentParser(description="")
+arg_parser.add_argument('args',
+                        metavar='args_json_file',
+                        default='None',
+                        help='The arguments file in json format')
 
-    arg_parser = argparse.ArgumentParser(description="")
-    arg_parser.add_argument('args',
-                            metavar='args_json_file',
-                            default='None',
-                            help='The arguments file in json format')
 
-    args_obj = arg_parser.parse_args()
+def main(args_obj):
+
     # parse the config json file
     args, _ = get_config_from_json(args_obj.args)
 
@@ -38,4 +38,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+
+    sys.argv = ['main.py', 'args.json']
+    args_obj = arg_parser.parse_args()
+
+    main(args_obj)
