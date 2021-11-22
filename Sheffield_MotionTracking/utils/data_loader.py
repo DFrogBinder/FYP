@@ -42,6 +42,13 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
                                                                image_interpolation='linear')])
 
         train_set = tio.SubjectsDataset(train_subjects, transform=training_transform)
+
+        # Plotting the first patient for inspection
+        print("Plotting first subject from the train set...")
+        Single_Subject = train_set[0]
+        Single_Subject.plot()
+
+
         print('Training set:', len(train_set), 'subjects')
         train_loader = torch.utils.data.DataLoader(
             train_set,
@@ -143,6 +150,11 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
 
 
         debug_set = tio.SubjectsDataset(debug_subjects, transform=debug_transform)
+
+        # Plotting the first patient for inspection
+        print("Plotting first subject from the debug set...")
+        Single_Subject = debug_set[0]
+        Single_Subject.plot()
 
         print('Debug set:', len(debug_set), 'subjects')
 
