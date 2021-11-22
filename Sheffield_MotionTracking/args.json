@@ -16,7 +16,7 @@
   "smooth_reg_type": "dvf",
   "num_workers" : 1,
   "debug":true,
-  "mode": "interface",
+  "mode": "train",
   "inference_set": "validation",
   "validate_every" : 5,
   "save_image_every" : 1,
