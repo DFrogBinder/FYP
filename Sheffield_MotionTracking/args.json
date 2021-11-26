@@ -3,7 +3,7 @@
   "dim": 2,
   "num_images_per_group": 25,
   "image_shape": [256, 256],
-  "aug_type": "aug2",
+  "aug_type": "aug0",
   "scale": 1.0,  
   "initial_channels":32, 
   "depth":4,  
