@@ -20,9 +20,9 @@
   "inference_set": "validation",
   "validate_every" : 5,
   "save_image_every" : 1,
-  "train_data_folder" : "/Users/boyanivanov/Desktop/FYP/TrainDir",
-  "validation_data_folder" : "/Users/boyanivanov/Desktop/FYP/ValDir",
-  "test_data_folder": "/Users/boyanivanov/Desktop/FYP/TrainDir",
-  "exp_log_path":"/Users/boyanivanov/Desktop/FYP/OutputDir",
+  "train_data_folder" : "/mnt/Disk1/Boyan/FYP/TrainDir",
+  "validation_data_folder" : "/mnt/Disk1/Boyan/FYP/ValDir",
+  "test_data_folder":"/mnt/Disk1/Boyan/FYP/TestDir",
+  "exp_log_path":"/mnt/Disk1/Boyan/FYP/OutputDir",
   "exp_name":"test"
 }
