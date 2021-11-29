@@ -36,7 +36,11 @@ def DTI_Image_Sort(Data):
                 Images[i]=[]
                 for d in range(NumberOfImages):
                         tVar = Data[str(i)][d]
-                        Images[i].append(tVar.pixel_array)
+                        # Adding an extra dimention for the new model
+                        tPixelArray = tVar.pixel_array
+                        H,W=tPixelArray.shape
+                        tPixelArray=np.reshape(tPixelArray,[H,W,1])
+                        Images[i].append(tPixelArray)
         return Images               
 
 def FixedImageSort(Data):
@@ -260,7 +264,7 @@ def Convert(PathDicom,Mode):
                 print("Exiting...")
                 return
         cwd = os.getcwd()
-        CleanFolder(os.path.join(cwd,'Nifti_Export'))
+        #CleanFolder(os.path.join(cwd,'Nifti_Export'))
         
         print('Exporting Data...')
         for i,nifti in zip(range(0,len(SortedNifti)),tqdm(SortedNifti)):
@@ -276,6 +280,7 @@ def Convert(PathDicom,Mode):
                 elif Mode == 'Train':
                         for Slice in SortedNifti[i]:
                                 File = np.asarray(SortedNifti[i]).T
+                                File = np.reshape(File,[172,172,1,146])
                                 ni = nib.Nifti1Image(File,affine=np.eye(4))
                                 ResultFolder = os.path.join(PathDicom,'Nifti_Export')
                                 if os.path.exists(ResultFolder):
