@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import torchio as tio
 import torch
+import matplotlib as plt
 
 def data_loader(train_data_folder=None, validation_data_folder=None, test_data_folder=None, debug_data_folder=None,
                 num_workers=1, aug_type='aug0'):
@@ -18,6 +19,12 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
             )
             train_subjects.append(subject)
 
+        z,W,H,N=train_subjects[0].image.data.shape
+        for i,subject in zip(range(len(train_subjects)), train_subjects):
+            train_subjects[i].image.data=train_subjects[i].image.data.reshape(N,z,W,H)
+        
+        print("Shape of training image before loading is: "+str(train_subjects[0].image.data.shape))
+        
         if aug_type == 'aug0':
             training_transform = tio.Compose([])
         elif aug_type == 'aug1':
@@ -43,7 +50,7 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
 
         train_set = tio.SubjectsDataset(train_subjects, transform=training_transform)
 
-        # Plotting the first patient for inspection
+        # # Plotting the first patient for inspection
         print("Plotting first subject from the train set...")
         Single_Subject = train_set[0]
         Single_Subject.plot()
@@ -124,6 +131,12 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
                 image=tio.ScalarImage(image_path),
             )
             debug_subjects.append(subject)
+        
+        z,W,H,N=debug_subjects[0].image.data.shape
+        for i,subject in zip(range(len(debug_subjects)), debug_subjects):
+            debug_subjects[i].image.data=debug_subjects[i].image.data.reshape(N,z,W,H)
+        
+        print("Shape of debug image before loading is: "+str(debug_subjects[0].image.data.shape))
 
         if aug_type == 'aug0':
             debug_transform = tio.Compose([])
@@ -152,9 +165,9 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
         debug_set = tio.SubjectsDataset(debug_subjects, transform=debug_transform)
 
         # Plotting the first patient for inspection
-        print("Plotting first subject from the debug set...")
-        Single_Subject = debug_set[0]
-        Single_Subject.plot()
+        # print("Plotting first subject from the debug set...")
+        # Single_Subject = debug_set[0]
+        # Single_Subject.plot()
 
         print('Debug set:', len(debug_set), 'subjects')
 
