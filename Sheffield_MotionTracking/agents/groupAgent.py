@@ -2,6 +2,7 @@ import logging
 import os
 import shutil
 import time
+import matplotlib.pyplot as plt
 
 import SimpleITK as sitk
 import torch
@@ -156,14 +157,14 @@ class groupAgent(BaseAgent):
             total_loss = 0.
 
             batch_init = train_batch['image'][tio.DATA].to(device)[0, ...]
-            batch_resampled = F.interpolate(batch_init.unsqueeze(0), (self.args.image_shape[0],
+            batch_resampled = F.interpolate(batch_init.unsqueeze(0).type(torch.float32), (self.args.image_shape[0],
                                                                               self.args.image_shape[1],
                                                                               self.args.num_images_per_group),
                                                 mode='trilinear', align_corners=True).squeeze(0)
 
             batch_mri = batch_resampled.permute(3, 0, 2, 1)  # (n,1,h,w)
 
-            ## to visualize the grid
+            # # to visualize the grid
             # grid = torchvision.utils.make_grid(batch_mri_resampled.permute(3, 0, 2, 1), nrow=5)
             # plt.imshow(grid.cpu().permute(1, 2, 0)); plt.axis('off')
 
@@ -244,7 +245,7 @@ class groupAgent(BaseAgent):
 
                 batch_init = val_batch['image'][tio.DATA].to(device)[0, ...]
 
-                batch_resampled = F.interpolate(batch_init.unsqueeze(0), (self.args.image_shape[0],
+                batch_resampled = F.interpolate(batch_init.unsqueeze(0).type(torch.float32), (self.args.image_shape[0],
                                                                                   self.args.image_shape[1],
                                                                                   self.args.num_images_per_group),
                                                     mode='trilinear', align_corners=True).squeeze(0)

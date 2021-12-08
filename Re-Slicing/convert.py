@@ -4,9 +4,28 @@ import numpy as np
 import SimpleITK as sitk
 import pydicom
 import platform
+from medpy.io import save
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
+def get_sitk_image_details_from_DICOM(filenameDCM):
+        """ Reads and returns image spacing of the input DICOM File.
+        Args:
+        ----
+        filenameDCM (string): File path to a DICOM File.
+        Returns:
+        -------
+        spacing (float): Float value describing the space between pixels in the given image.
+        """
+        reader = sitk.ImageSeriesReader()
+        dicom_names = reader.GetGDCMSeriesFileNames(filenameDCM)
+        reader.SetFileNames(dicom_names)
+        image = reader.Execute()
+        spacing = image.GetSpacing()
+        return spacing
+
+def convert_to_mha(Data):
+        image = sitk.ReadImage(Data)
 def Add_Noise(Data,Dim):
     noise = np.random.normal(0,1,[Dim[0],Dim[1]])
     return Data + noise
@@ -36,10 +55,7 @@ def DTI_Image_Sort(Data):
                 Images[i]=[]
                 for d in range(NumberOfImages):
                         tVar = Data[str(i)][d]
-                        # Adding an extra dimention for the new model
                         tPixelArray = tVar.pixel_array
-                        H,W=tPixelArray.shape
-                        tPixelArray=np.reshape(tPixelArray,[H,W,1])
                         Images[i].append(tPixelArray)
         return Images               
 
@@ -218,7 +234,8 @@ def Convert(PathDicom,Mode):
 
         # Load spacing values (in mm)
         ConstPixelSpacing = (float(RefDs.PixelSpacing[0]), float(RefDs.PixelSpacing[1]), float(RefDs.SliceThickness))
-
+        Spacing_ITK = get_sitk_image_details_from_DICOM(PathDicom)
+        
         # The array is sized based on 'ConstPixelDims'
         ArrayDicom = np.zeros(ConstPixelDims, dtype=RefDs.pixel_array.dtype)
 
@@ -279,16 +296,21 @@ def Convert(PathDicom,Mode):
                                 nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(i)+'.nii.gz'][0]))
                 elif Mode == 'Train':
                         for Slice in SortedNifti[i]:
-                                File = np.asarray(SortedNifti[i]).T
-                                File = np.reshape(File,[172,172,1,146])
-                                ni = nib.Nifti1Image(File,affine=np.eye(4))
+                                File = np.asarray(SortedNifti[i])
+                                #File = np.flip(File,2)
+                                #File = np.reshape(File,[146,1,172,172])
+                                File = sitk.GetImageFromArray(File)
+                                File.SetSpacing(Spacing_ITK)
+                                writer = sitk.ImageFileWriter()
                                 ResultFolder = os.path.join(PathDicom,'Nifti_Export')
                                 if os.path.exists(ResultFolder):
-                                        nib.save(ni, os.path.join(ResultFolder, ['Slice_'+str(i)+'.nii.gz'][0]))
+                                        writer.SetFileName(os.path.join(ResultFolder, ['Slice_'+str(i)+'.mha'][0]))
+                                        writer.Execute(File)
                                                 
                                 else:
                                         os.mkdir(ResultFolder)
-                                        nib.save(ni, os.path.join(ResultFolder, ['Slice_'+str(i)+'.nii.gz'][0]))
+                                        writer.SetFileName(os.path.join(ResultFolder, ['Slice_'+str(i)+'.mha'][0]))
+                                        writer.Execute(File)
                                         
                 else:
                         print('Unrecognised mode, exiting...')

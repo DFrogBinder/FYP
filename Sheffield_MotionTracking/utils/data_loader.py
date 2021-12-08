@@ -10,7 +10,7 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
     if train_data_folder is not None:
 
         train_images_dir = Path(os.path.join(train_data_folder, 'images'))
-        train_image_paths = sorted(train_images_dir.glob('*.nii.gz'))
+        train_image_paths = sorted(train_images_dir.glob('*.mha'))
 
         train_subjects = []
         for image_path in train_image_paths:
@@ -19,9 +19,9 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
             )
             train_subjects.append(subject)
 
-        z,W,H,N=train_subjects[0].image.data.shape
-        for i,subject in zip(range(len(train_subjects)), train_subjects):
-            train_subjects[i].image.data=train_subjects[i].image.data.reshape(N,z,W,H)
+        # z,W,H,N=train_subjects[0].image.data.shape
+        # for i,subject in zip(range(len(train_subjects)), train_subjects):
+        #     train_subjects[i].image.data=train_subjects[i].image.data.reshape(N,z,W,H)
         
         print("Shape of training image before loading is: "+str(train_subjects[0].image.data.shape))
         
@@ -69,7 +69,7 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
     if validation_data_folder is not None:
 
         validation_images_dir = Path(os.path.join(validation_data_folder, 'images'))
-        validation_image_paths = sorted(validation_images_dir.glob('*.nii.gz'))
+        validation_image_paths = sorted(validation_images_dir.glob('*.mha'))
 
         validation_subjects = []
         for image_path in validation_image_paths:
@@ -95,7 +95,7 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
     if test_data_folder is not None:
 
         test_images_dir = Path(os.path.join(test_data_folder, 'images'))
-        test_image_paths = sorted(test_images_dir.glob('*.nii.gz'))
+        test_image_paths = sorted(test_images_dir.glob('*.mha'))
 
         test_subjects = []
         for image_path in test_image_paths:
@@ -123,7 +123,7 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
     if debug_data_folder is not None:
 
         debug_images_dir = Path(os.path.join(debug_data_folder, 'images'))
-        debug_image_paths = [sorted(debug_images_dir.glob('*.nii.gz'))[0]]
+        debug_image_paths = [sorted(debug_images_dir.glob('*.mha'))[0]]
 
         debug_subjects = []
         for image_path in debug_image_paths:
@@ -132,9 +132,9 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
             )
             debug_subjects.append(subject)
         
-        z,W,H,N=debug_subjects[0].image.data.shape
-        for i,subject in zip(range(len(debug_subjects)), debug_subjects):
-            debug_subjects[i].image.data=debug_subjects[i].image.data.reshape(N,z,W,H)
+        # z,W,H,N=debug_subjects[0].image.data.shape
+        # for i,subject in zip(range(len(debug_subjects)), debug_subjects):
+        #     debug_subjects[i].image.data=debug_subjects[i].image.data.reshape(N,z,H,W)
         
         print("Shape of debug image before loading is: "+str(debug_subjects[0].image.data.shape))
 
