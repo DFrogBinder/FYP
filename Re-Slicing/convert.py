@@ -1,12 +1,25 @@
 import os
+from SimpleITK.SimpleITK import Normalize
 import nibabel as nib
 import numpy as np
 import SimpleITK as sitk
 import pydicom
 import platform
-from medpy.io import save
-from tqdm import tqdm
 import matplotlib.pyplot as plt
+import PIL
+import cv2
+from tqdm import tqdm
+
+def normalize_image(Data,viz=False): # disp is an array in uint8 data type
+        
+        norm = np.zeros((Data.shape[0],Data.shape[1]))
+        disp_norm = cv2.normalize(Data,norm,0,255,cv2.NORM_MINMAX)
+        
+        if viz:
+                plt.imshow(disp_norm)
+                plt.show()
+
+        return disp_norm 
 
 def get_sitk_image_details_from_DICOM(filenameDCM):
         """ Reads and returns image spacing of the input DICOM File.
@@ -38,10 +51,14 @@ def SingleSliceSort(Data):
              Images.append(i.pixel_array)
      return Images
 
-def GroupedImageSort(Data):
+def GroupedImageSort(Data,flag):
         Images={}
-        NumberOfDynamics=len(Data['0'])  # Checks number of dynamics in first slice
-        for i in range(28):
+        if flag == 'DCE':
+                itr = len(Data['0'])
+        else:
+                itr = 28
+
+        for i in range(itr):
                 Images[i]=[]
                 for d in Data:
                         tVar = Data[d]
@@ -273,7 +290,7 @@ def Convert(PathDicom,Mode):
         if flag == 'T1' or flag == 'DCE':
                 if flag == 'DCE':
                         SortedImages.pop(str(len(SortedImages)-1))
-                SortedNifti = FixedImageSort(SortedImages)
+                SortedNifti = GroupedImageSort(SortedImages,flag)
         elif flag == 'DTI':
                 SortedNifti = DTI_Image_Sort(SortedImages)
         else:
@@ -295,10 +312,16 @@ def Convert(PathDicom,Mode):
                                 os.mkdir(os.path.join(os.getcwd(),'Nifti_Export'))
                                 nib.save(ni, os.path.join('Nifti_Export', ['Slice'+str(i)+'.nii.gz'][0]))
                 elif Mode == 'Train':
-                        for Slice in SortedNifti[i]:
-                                File = np.asarray(SortedNifti[i])
-                                #File = np.flip(File,2)
-                                #File = np.reshape(File,[146,1,172,172])
+                        try:
+                                itr = SortedNifti[str(i)]
+                        except:
+                                itr = SortedNifti[i]
+                                        
+                        for Slice in itr:
+                                File = np.asarray(itr).astype(np.float32)
+                                for j in range(File.shape[0]):
+                                        normFile = normalize_image(File[j,:,:])
+                                        File[j,:,:] = normFile
                                 File = sitk.GetImageFromArray(File)
                                 File.SetSpacing(Spacing_ITK)
                                 writer = sitk.ImageFileWriter()

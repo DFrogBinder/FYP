@@ -1,11 +1,5 @@
-import numpy as np
-import SimpleITK as sitk
-import nibabel as nib
 import os
-import sys
-import subprocess
 from convert import Convert
-from tqdm import tqdm
 import zipfile
 
 def SliceData(PathToZip):
