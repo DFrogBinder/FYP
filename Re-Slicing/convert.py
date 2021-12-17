@@ -66,6 +66,7 @@ def GroupedImageSort(Data,flag):
         return Images
 
 def DTI_Image_Sort(Data):
+        Data = AquisitionTimeSort(Data)
         Images={}
         NumberOfImages=len(Data['0'])
         for i in range(len(Data)):
@@ -218,17 +219,21 @@ def Convert(PathDicom,Mode):
 
         
         if (str(Parts[len(Parts)-2])==[str(19)+'_unknown'][0] or 
-            str(Parts[len(Parts)-2])==[str(20)+'_unknown'][0] or 
-            str(Parts[len(Parts)-2])==[str(22)+'_unknown'][0] or 
-            str(Parts[len(Parts)-2])==[str(23)+'_unknown'][0] or 
-            str(Parts[len(Parts)-2])==[str(25)+'_unknown'][0] or 
-            str(Parts[len(Parts)-2])==[str(29)+'_unknown'][0]):
+                str(Parts[len(Parts)-2])==[str(20)+'_unknown'][0] or 
+                str(Parts[len(Parts)-2])==[str(22)+'_unknown'][0] or 
+                str(Parts[len(Parts)-2])==[str(23)+'_unknown'][0] or 
+                str(Parts[len(Parts)-2])==[str(25)+'_unknown'][0] or 
+                str(Parts[len(Parts)-2])==[str(29)+'_unknown'][0]):
                 flag = "T1"
         elif (str(Parts[len(Parts)-2])==[str(30)+'_unknown'][0] or 
-              str(Parts[len(Parts)-2])==[str(31)+'_unknown'][0]):
+                str(Parts[len(Parts)-2])==[str(31)+'_unknown'][0]):
                 flag = "DTI"
         elif (str(Parts[len(Parts)-2])==[str(39)+'_unknown'][0] or 
-              str(Parts[len(Parts)-2])==[str(40)+'_unknown'][0]):
+                str(Parts[len(Parts)-2])==[str(40)+'_unknown'][0] or
+                str(Parts[len(Parts)-2])==[str(42)+'_unknown'][0] or
+                str(Parts[len(Parts)-2])==[str(43)+'_unknown'][0] or
+                str(Parts[len(Parts)-2])==[str(48)+'_unknown'][0] or
+                str(Parts[len(Parts)-2])==[str(52)+'_unknown'][0]):
                 flag = "DCE"
         else:
                 print("Unknown Modality!")
@@ -290,7 +295,7 @@ def Convert(PathDicom,Mode):
         if flag == 'T1' or flag == 'DCE':
                 if flag == 'DCE':
                         SortedImages.pop(str(len(SortedImages)-1))
-                SortedNifti = GroupedImageSort(SortedImages,flag)
+                SortedNifti = DTI_Image_Sort(SortedImages)
         elif flag == 'DTI':
                 SortedNifti = DTI_Image_Sort(SortedImages)
         else:
