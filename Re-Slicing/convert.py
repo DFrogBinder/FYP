@@ -230,9 +230,14 @@ def Convert(PathDicom,Mode):
                 flag = "DTI"
         elif (str(Parts[len(Parts)-2])==[str(39)+'_unknown'][0] or 
                 str(Parts[len(Parts)-2])==[str(40)+'_unknown'][0] or
+                str(Parts[len(Parts)-2])==[str(41)+'_unknown'][0] or
                 str(Parts[len(Parts)-2])==[str(42)+'_unknown'][0] or
                 str(Parts[len(Parts)-2])==[str(43)+'_unknown'][0] or
+                str(Parts[len(Parts)-2])==[str(44)+'_unknown'][0] or
+                str(Parts[len(Parts)-2])==[str(45)+'_unknown'][0] or
+                str(Parts[len(Parts)-2])==[str(47)+'_unknown'][0] or
                 str(Parts[len(Parts)-2])==[str(48)+'_unknown'][0] or
+                str(Parts[len(Parts)-2])==[str(51)+'_unknown'][0] or
                 str(Parts[len(Parts)-2])==[str(52)+'_unknown'][0]):
                 flag = "DCE"
         else:
