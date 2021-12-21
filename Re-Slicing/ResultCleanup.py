@@ -33,6 +33,9 @@ def getListOfFiles(dirName,PNumber,homeDir):
             if sl == 'Slice_0.mha' or sl == 'Slice_1.mha' or sl == 'Slice_2.mha' or sl == 'Slice_7.mha':
                 tpath = os.path.join(ExportDir,sl)
                 os.remove(tpath)
+            else:
+                tName = ['P'+PNumber+'S'+sl.split('_')[-1]]
+                os.rename(os.path.join(ExportDir,sl),os.path.join(ExportDir,str(tName[0])))
         os.system('mv *.mha ../../../../')
     for entry in listOfFile:
         # Create full path
@@ -42,7 +45,6 @@ def getListOfFiles(dirName,PNumber,homeDir):
             allFiles = allFiles + getListOfFiles(fullPath,PNumber,homeDir)
         else:
             allFiles.append(fullPath)
-                
     return allFiles
 
 def ResultCleanup(path):
@@ -58,7 +60,7 @@ def ResultCleanup(path):
         PNumber = PathToDir.split('/')[-1]
         PNumber = PNumber[-3:]
         if os.path.isdir(PathToDir):
-            getListOfFiles(PathToDir,PNumber,PathToDir)
+            a = getListOfFiles(PathToDir,PNumber,PathToDir)
             
     return
 ResultCleanup('/Users/boyanivanov/Documents/Temp_Data/ML_Data/')
