@@ -30,7 +30,7 @@ def getListOfFiles(dirName,PNumber,homeDir):
         os.chdir(ExportDir)
         Slices = os.listdir(ExportDir)
         for sl in Slices:
-            if sl == 'Slice_0.mha' or sl == 'Slice_1.mha' or sl == 'Slice_2.mha' or sl == 'Slice_7.mha':
+            if sl == 'Slice_0.mha' or sl == 'Slice_1.mha' or sl == 'Slice_7.mha':
                 tpath = os.path.join(ExportDir,sl)
                 os.remove(tpath)
             else:
