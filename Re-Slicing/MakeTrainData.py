@@ -1,5 +1,6 @@
 import os
 from convert import Convert
+from ResultCleanup import ResultCleanup
 import zipfile
 
 def SliceData(PathToZip):
@@ -19,4 +20,6 @@ def SliceData(PathToZip):
         PathToDicom = os.path.join(os.path.join(os.path.join(PathToScans,tFolder[0]),os.listdir(os.path.join(PathToScans,tFolder[0]))[0]))
 
         Convert(PathToDicom,'Train')
+        ResultCleanup(PathToDicom)
+        
 SliceData('/Users/boyanivanov/Documents/Temp_Data/ML_Data/')
