@@ -237,6 +237,7 @@ def Convert(PathDicom,Mode):
                 str(Parts[len(Parts)-2])==[str(45)+'_unknown'][0] or
                 str(Parts[len(Parts)-2])==[str(47)+'_unknown'][0] or
                 str(Parts[len(Parts)-2])==[str(48)+'_unknown'][0] or
+                str(Parts[len(Parts)-2])==[str(49)+'_unknown'][0] or
                 str(Parts[len(Parts)-2])==[str(51)+'_unknown'][0] or
                 str(Parts[len(Parts)-2])==[str(52)+'_unknown'][0]):
                 flag = "DCE"
