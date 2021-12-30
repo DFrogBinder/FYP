@@ -1,8 +1,11 @@
 import os
+import shutil
+import random
 import platform
 import tqdm
 
-
+def Shuffle(path):
+    return 
 def getListOfFiles(dirName,PNumber,homeDir):
     # create a list of file and sub directories 
     # names in the given directory 
@@ -50,17 +53,43 @@ def getListOfFiles(dirName,PNumber,homeDir):
 def ResultCleanup(path):
     global homeDir 
     homeDir = path
+    TrainNum = 2
+    ValNum = 1
+    TestNum = 1
     ResultsList = os.listdir(path)
     
     if '.DS_Store' in ResultsList:
         os.remove(os.path.join(path,'.DS_Store'))
     
+    print("Cleaning up reults")
     for entry in tqdm.tqdm(ResultsList):
         PathToDir = os.path.join(path, entry)
         PNumber = PathToDir.split('/')[-1]
         PNumber = PNumber[-3:]
         if os.path.isdir(PathToDir):
             a = getListOfFiles(PathToDir,PNumber,PathToDir)
-            
+            shutil.rmtree(os.path.join(PathToDir,'scans'))
+    
+    ResultsList = os.listdir(path)    
+    random.shuffle(ResultsList)
+    
+    os.mkdir(os.path.join(homeDir,'Train'))
+    os.mkdir(os.path.join(homeDir,'Validation'))
+    os.mkdir(os.path.join(homeDir,'Test'))
+    
+    TrainData = ResultsList[0:TrainNum]
+    ValData = ResultsList[TrainNum:ValNum+TrainNum]
+    TestData = ResultsList[ValNum+TrainNum:ValNum+TrainNum+TestNum]
+
+    for p in TrainData:
+        shutil.move(os.path.join(homeDir,p),os.path.join(homeDir,'Train'))
+    
+    for p in ValData:
+        shutil.move(os.path.join(homeDir,p),os.path.join(homeDir,'Validation'))
+        
+    for p in TestData:
+        shutil.move(os.path.join(homeDir,p),os.path.join(homeDir,'Test'))
+    
+    
     return
 ResultCleanup('/Users/boyanivanov/Documents/Temp_Data/ML_Data/')
