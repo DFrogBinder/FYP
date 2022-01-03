@@ -53,9 +53,10 @@ def getListOfFiles(dirName,PNumber,homeDir):
 def ResultCleanup(path):
     global homeDir 
     homeDir = path
-    TrainNum = 2
-    ValNum = 1
-    TestNum = 1
+    TrainNum = 30
+    ValNum = 10
+    TestNum = 5
+    ShuffleNumber = 100000
     ResultsList = os.listdir(path)
     
     if '.DS_Store' in ResultsList:
@@ -68,10 +69,10 @@ def ResultCleanup(path):
         PNumber = PNumber[-3:]
         if os.path.isdir(PathToDir):
             a = getListOfFiles(PathToDir,PNumber,PathToDir)
-            shutil.rmtree(os.path.join(PathToDir,'scans'))
     
-    ResultsList = os.listdir(path)    
-    random.shuffle(ResultsList)
+    ResultsList = os.listdir(path) 
+    for i in range(ShuffleNumber):   
+        random.shuffle(ResultsList)
     
     os.mkdir(os.path.join(homeDir,'Train'))
     os.mkdir(os.path.join(homeDir,'Validation'))
@@ -92,4 +93,4 @@ def ResultCleanup(path):
     
     
     return
-ResultCleanup('/Users/boyanivanov/Documents/Temp_Data/ML_Data/')
+ResultCleanup('/Volumes/T7/EXP1/SortingFolder')
