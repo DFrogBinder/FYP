@@ -53,9 +53,9 @@ def getListOfFiles(dirName,PNumber,homeDir):
 def ResultCleanup(path):
     global homeDir 
     homeDir = path
-    TrainNum = 30
+    TrainNum = 25
     ValNum = 10
-    TestNum = 5
+    TestNum = 10
     ShuffleNumber = 100000
     ResultsList = os.listdir(path)
     
