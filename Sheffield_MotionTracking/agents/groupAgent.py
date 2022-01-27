@@ -341,13 +341,18 @@ class groupAgent(BaseAgent):
                 batch_mri = batch_resampled.permute(3, 0, 2, 1)  # (n,1,h,w)
 
                 res = self.model(batch_mri)
+                
+                #TODO: Figure which version to use
+                #patient_name = test_batch["mri"][tio.PATH][0].split('/')[-1].split('.mha')[0]
 
-                patient_name = test_batch["mri"][tio.PATH][0].split('/')[-1].split('.mha')[0]
+                patient_name = test_batch["image"][tio.PATH][0].split('/')[-1].split('.mha')[0]
                 patient_output_path = os.path.join(self.args.output_dir, self.args.inference_set, patient_name)
                 if not os.path.exists(patient_output_path):
                     os.makedirs(patient_output_path)
 
                 copy_disp_t2i = res['disp_t2i'].clone().detach()
+                copy_warped_input_image = res['warped_input_image'].clone().detach()
+                copy_warped_input_image = copy_warped_input_image[:,0,:,:]
                 batch_disp_t2i_resampled1 = F.interpolate(copy_disp_t2i[:, 0, ...].unsqueeze(1).permute(1, 2, 3, 0).unsqueeze(0),
                                                          (self.args.image_shape[0], self.args.image_shape[1],
                                                               batch_init.shape[-1]),
@@ -361,8 +366,15 @@ class groupAgent(BaseAgent):
 
                 sitk_output_dvf = sitk.GetImageFromArray(batch_disp_t2i_resampled.permute(3, 1, 2, 0).cpu(), isVector=True)
                 sitk_output_dvf.SetSpacing(sitk.ReadImage(test_batch["image"][tio.PATH][0]).GetSpacing())
-                sitk_output_dvf.SetDirection(sitk.ReadImage(test_batch["image "][tio.PATH][0]).GetDirection())
+                sitk_output_dvf.SetDirection(sitk.ReadImage(test_batch["image"][tio.PATH][0]).GetDirection())
                 sitk.WriteImage(sitk_output_dvf, os.path.join(patient_output_path, 'dvf.mha'))
+                
+                copy_warped_input_image = sitk.GetImageFromArray(copy_warped_input_image)
+                copy_warped_input_image.SetSpacing(sitk.ReadImage(test_batch["image"][tio.PATH][0]).GetSpacing())
+                copy_warped_input_image.SetDirection(sitk.ReadImage(test_batch["image"][tio.PATH][0]).GetDirection())
+                sitk.WriteImage(copy_warped_input_image, os.path.join(patient_output_path, 'wimage.mha'))
+
+    
 
 
                 print(f'finished patient {patient_name}')

@@ -1,5 +1,6 @@
 from . import unet
 import torch
+import matplotlib.pyplot as plt
 import torch.nn as nn
 import torch.nn.functional as F
 from utils.SpatialTransformer import SpatialTransformer
@@ -54,7 +55,8 @@ class RegNet_single(nn.Module):
         '''
 
         original_image_shape = input_image.shape[2:]
-
+        # plt.imshow(input_image[10,0,:,:])
+        # plt.show()
         if self.scale < 1:
             scaled_image = F.interpolate(torch.transpose(input_image, 0, 1), scale_factor=self.scale,
                                          align_corners=True, mode='bilinear' if self.dim == 2 else 'trilinear',
