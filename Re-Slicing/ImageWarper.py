@@ -1,5 +1,20 @@
 import SimpleITK as sitk
 import numpy as np
+import matplotlib as plt
+
+def ResampleImage(img,dvf):
+    img_array = sitk.GetArrayFromImage(img)
+    dvf_array = sitk.GetArrayFromImage(dvf)
+
+    resampler = sitk.ResampleImageFilter()
+    resampler.SetReferenceImage(dvf_array)  # Or any target geometry
+    resampler.SetTransform(sitk.DisplacementFieldTransform(
+        sitk.Cast(dvf_array, sitk.sitkVectorFloat64)))
+
+    warped = resampler.Execute(img_array)
+    return warped
+
+
 
 def WarpImage(img,dvf):
     img_array = sitk.GetArrayFromImage(img)
@@ -10,15 +25,16 @@ def WarpImage(img,dvf):
 
     warper = sitk.WarpImageFilter()
     warper.SetOutputParameteresFromImage(img)
-    out = warper.Execute(img,dvf)
+    out = warper.Execute(dvf,img)
 
     return out
 
 
 def main():
-    dvf = sitk.ReadImage('/Volumes/T7/EXP1/test/DCE_NSl/OutputDir/test/output/test/P003S2/dvf.mha')
-    img = sitk.ReadImage('/Volumes/T7/EXP1/test/DCE_NSl/OutputDir/test/output/test/P003S2/wimage.mha')
+    dvf = sitk.ReadImage('/Volumes/T7/EXP3/EXP3/output/test/P003S2/dvf.mha')
+    img = sitk.ReadImage('/Volumes/T7/EXP3/Test/images/P003S2.mha')
 
+    #ResampledImage = ResampleImage(img,dvf)
     WarpedImage = WarpImage(img,dvf)
     return
 main()
