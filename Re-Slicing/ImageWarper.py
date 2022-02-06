@@ -23,6 +23,9 @@ def WarpImage(img,dvf):
     print("Image Shape is: " + str(img_array.shape))
     print("Dvf Shape is: " + str(dvf_array.shape))
 
+    img = sitk.Cast(img, sitk.sitkFloat64)
+    #dvf = sitk.Cast(dvf, sitk.sitkFloat32)
+
     warper = sitk.WarpImageFilter()
     warper.SetOutputParameteresFromImage(img)
     out = warper.Execute(dvf,img)

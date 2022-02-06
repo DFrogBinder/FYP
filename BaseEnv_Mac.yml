@@ -1,4 +1,4 @@
-name: FYP
+name: FYP 
 channels:
   - conda-forge
   - defaults

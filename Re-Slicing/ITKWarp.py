@@ -1,13 +1,16 @@
-#!/usr/bin/env python
+#!/opt/homebrew/Caskroom/miniconda/base/envs/FYP/bin python
 
+import sys
 import itk
-import argparse
 
-parser = argparse.ArgumentParser(description="Wrap An Image Using A Deformation Field.")
-parser.add_argument("input_image")
-parser.add_argument("displacement_field")
-parser.add_argument("output_image")
-args = parser.parse_args()
+if len(sys.argv) != 4:
+    print('Usage: ' + sys.argv[0] +
+          ' <InputFileName> <DisplacementFieldFileName> <OutputFileName>')
+    sys.exit(1)
+
+inputFileName = sys.argv[1]
+displacementFieldFileName = sys.argv[2]
+outputFileName = sys.argv[3]
 
 Dimension = 2
 
@@ -20,15 +23,16 @@ PixelType = itk.UC
 ImageType = itk.Image[PixelType, Dimension]
 
 reader = itk.ImageFileReader[ImageType].New()
-reader.SetFileName(args.input_image)
+reader.SetFileName(inputFileName)
 
 fieldReader = itk.ImageFileReader[DisplacementFieldType].New()
-fieldReader.SetFileName(args.displacement_field)
+fieldReader.SetFileName(displacementFieldFileName)
 fieldReader.Update()
 
 deformationField = fieldReader.GetOutput()
 
-warpFilter = itk.WarpImageFilter[ImageType, ImageType, DisplacementFieldType].New()
+warpFilter = \
+        itk.WarpImageFilter[ImageType, ImageType, DisplacementFieldType].New()
 
 interpolator = itk.LinearInterpolateImageFunction[ImageType, itk.D].New()
 
@@ -44,6 +48,6 @@ warpFilter.SetInput(reader.GetOutput())
 
 writer = itk.ImageFileWriter[ImageType].New()
 writer.SetInput(warpFilter.GetOutput())
-writer.SetFileName(args.output_image)
+writer.SetFileName(outputFileName)
 
 writer.Update()
