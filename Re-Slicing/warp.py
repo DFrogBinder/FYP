@@ -4,13 +4,14 @@ import sys
 import os
 import argparse
 
-# sys.argv=['warp.py','P003S2.mha', 'dvf.mha', 'WImage.mha']
-
+# Uncoment and remove self call at the bottom to use as a CMD tool 
 # parser = argparse.ArgumentParser(description="Wrap An Image Using A Deformation Field.")
 # parser.add_argument("input_image")
 # parser.add_argument("displacement_field")
 # parser.add_argument("output_image")
 # args = parser.parse_args()
+
+
 def warp(input_image,displacement_field,output_image):
     
     Dimension = 3
