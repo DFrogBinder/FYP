@@ -146,7 +146,6 @@ class groupAgent(BaseAgent):
         # initialize stats
         running_total_loss = 0.
         running_simi_loss = 0.
-        running_cyclic_loss = 0.
         running_smooth_loss = 0.
         running_ncc_per_frame = [0. for x in range(self.args.num_images_per_group)]
 
@@ -187,20 +186,6 @@ class groupAgent(BaseAgent):
             else:
                 smooth_loss_item = 0
 
-            # Cyclic loss
-            if self.args.cyclic_reg > 0:
-                cyclic_loss = (torch.mean((torch.sum(res['scaled_disp_t2i'], 0)) ** 2)) ** 0.5
-                total_loss += self.args.cyclic_reg * cyclic_loss
-                cyclic_loss_item = cyclic_loss.item()
-            else:
-                cyclic_loss_item = 0
-
-            # Collect losses for tensorboard
-            running_ncc_per_frame = [x + y for x, y in zip(running_ncc_per_frame, list(ncc_per_frame.cpu().detach().numpy()))]
-            running_simi_loss += simi_loss_item
-            running_smooth_loss += smooth_loss_item
-            running_cyclic_loss += cyclic_loss_item
-
             total_loss_item = total_loss.item()
             running_total_loss += total_loss_item
 
@@ -211,20 +196,17 @@ class groupAgent(BaseAgent):
         epoch_total_loss = running_total_loss / len(self.train_loader)
         epoch_simi_loss = running_simi_loss / len(self.train_loader)
         epoch_smooth_loss = running_smooth_loss / len(self.train_loader)
-        epoch_cyclic_loss = running_cyclic_loss / len(self.train_loader)
         epoch_ncc_per_frame = [x/len(self.train_loader) for x in running_ncc_per_frame]
 
         self.summary_writer.add_scalars("Losses/total_loss", {'train': epoch_total_loss}, self.current_epoch)
         self.summary_writer.add_scalars("Losses/similarity_loss", {'train': epoch_simi_loss}, self.current_epoch)
         self.summary_writer.add_scalars("Losses/smooth_loss", {'train': epoch_smooth_loss}, self.current_epoch)
-        self.summary_writer.add_scalars("Losses/cyclic_loss", {'train': epoch_cyclic_loss}, self.current_epoch)
         for k in range(self.args.num_images_per_group):
             self.summary_writer.add_scalars(f"Frames_Reg/frame{k}", {'train': epoch_ncc_per_frame[k]}, self.current_epoch)
 
 
         self.logger.info( f'Training Reg, {self.current_epoch}, total loss {epoch_total_loss:.4f}, '
-                          f'simi. loss {epoch_simi_loss:.4f}, smooth loss {epoch_smooth_loss:.4f}, '
-                          f'cyclic loss {epoch_cyclic_loss:.4f}')
+                          f'simi. loss {epoch_simi_loss:.4f}, smooth loss {epoch_smooth_loss:.4f}, ')
 
 
     def validate(self):
@@ -234,7 +216,6 @@ class groupAgent(BaseAgent):
         # initialize stats
         running_total_loss = 0.
         running_simi_loss = 0.
-        running_cyclic_loss = 0.
         running_smooth_loss = 0.
         running_ncc_per_frame = [0. for x in range(self.args.num_images_per_group)]
         i = 1
@@ -271,19 +252,11 @@ class groupAgent(BaseAgent):
                 else:
                     smooth_loss_item = 0
 
-                if self.args.cyclic_reg > 0:
-                    cyclic_loss = (torch.mean((torch.sum(res['scaled_disp_t2i'], 0)) ** 2)) ** 0.5
-                    total_loss += self.args.cyclic_reg * cyclic_loss
-                    cyclic_loss_item = cyclic_loss.item()
-                else:
-                    cyclic_loss_item = 0
-
                 running_ncc_per_frame = [x + y for x, y in zip(running_ncc_per_frame,
                                                                list(ncc_per_frame.cpu().detach().numpy()))]
 
                 running_simi_loss += simi_loss_item
                 running_smooth_loss += smooth_loss_item
-                running_cyclic_loss += cyclic_loss_item
 
             total_loss_item = total_loss.item()
             running_total_loss += total_loss_item
@@ -304,19 +277,16 @@ class groupAgent(BaseAgent):
         epoch_total_loss = running_total_loss / len(self.validation_loader)
         epoch_simi_loss = running_simi_loss / len(self.validation_loader)
         epoch_smooth_loss = running_smooth_loss / len(self.validation_loader)
-        epoch_cyclic_loss = running_cyclic_loss / len(self.validation_loader)
         epoch_ncc_per_frame = [x/len(self.validation_loader) for x in running_ncc_per_frame]
 
         self.summary_writer.add_scalars("Losses/total_loss", {'validation': epoch_total_loss}, self.current_epoch)
         self.summary_writer.add_scalars("Losses/similarity_loss", {'validation': epoch_simi_loss}, self.current_epoch)
         self.summary_writer.add_scalars("Losses/smooth_loss", {'validation': epoch_smooth_loss}, self.current_epoch)
-        self.summary_writer.add_scalars("Losses/cyclic_loss", {'validation': epoch_cyclic_loss}, self.current_epoch)
         for k in range(self.args.num_images_per_group):
             self.summary_writer.add_scalars(f"Frames_Reg/frame{k}", {'train': epoch_ncc_per_frame[k]}, self.current_epoch)
 
         self.logger.info(f'Validation Reg, {self.current_epoch}, total loss {epoch_total_loss:.4f}, '
-                         f' simi. loss {epoch_simi_loss:.4f}, smooth loss {epoch_smooth_loss:.4f}, '
-                         f' cyclic loss {epoch_cyclic_loss:.3f}')
+                         f' simi. loss {epoch_simi_loss:.4f}, smooth loss {epoch_smooth_loss:.4f}, ')
 
 
     def inference(self):
