@@ -8,4 +8,5 @@
 /TrainDir/
 /ValDir/
 /TestDir/
-./**/args.json
+Sheffield_MotionTracking/args.json
+Sheffield_MotionTracking_Moded/args.json
