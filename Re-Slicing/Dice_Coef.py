@@ -8,8 +8,19 @@ from PIL import Image
 
 
 def Load_data(PathToFile):
+
     SegData = nib.load(PathToFile).get_data()
     return SegData
+def intersect(*d):
+    sets = iter(map(set, d))
+    result = sets.next()
+    for s in sets:
+        result = result.intersection(s)
+    return result
+def get_extended_dice(Data):
+  result = set(Data[0]).intersection(*Data[1:])
+  DiceG = Data.shape[-1]*(np.abs(intersect(Data))/Data.sum(axis=2,keepdims=True))
+  return Data 
 
 def get_dice_coefficient(mask_gt, mask_pred):
   volume_sum = mask_gt.sum() + mask_pred.sum()
@@ -23,14 +34,21 @@ def get_hausdorff(Im1,Im2):
   return distance
 
 def main(Path):
+  # Check is we have a full segmentation 
     Data = Load_data(Path)
-    Im1 = Data[:,:,32] #56 ; 32
-    Im2 = Data[:,:,33] #57 ; 33
+    if Data[:,:,1].any()==False:
+      print('The file provided does not contain a full segmentation!')
+    else:
+      Data = get_extended_dice(Data)
+
+    #Im1 = Data[:,:,56] #56 ; 32
+    #Im2 = Data[:,:,57] #57 ; 33
+
 
     Dice_coef = get_dice_coefficient(Im1,Im2)
     Hausdorff = get_hausdorff(Im1,Im2)
     print('Dice Coef is: ' + str(Dice_coef))
-    #print("Hausdorff distance is: " + Hausdorff)
+    print("Hausdorff distance is: " + str(Hausdorff[0]))
     return
 
 parser = argparse.ArgumentParser(description='Process data path.')
@@ -38,4 +56,5 @@ parser.add_argument('-p',help='The arguments file in nifti format')
 
 if __name__ == '__main__':
     args = parser.parse_args()
+    args.p = '/Volumes/T7/Internal_Report_Data/Internal_Report_Graphics/P29_Original_Segmentation/P29_Full-Segmentation.nii.gz'
     main(args.p)
