@@ -3,23 +3,31 @@ import matplotlib.pyplot as plt
 import nibabel as nib
 import scipy.spatial
 import sys
+import cv2
 import argparse
 from PIL import Image
 
-
 def Load_data(PathToFile):
-
     SegData = nib.load(PathToFile).get_data()
     return SegData
-def intersect(*d):
-    sets = iter(map(set, d))
-    result = sets.next()
-    for s in sets:
-        result = result.intersection(s)
-    return result
+
+def Array2ListOfSets(Array):
+  result = []
+  for i in range(Array.shape[-1]-1):
+    result.append(list(Array[:,:,i]))
+  return result
+
+def intersect(Data):
+  LData = Array2ListOfSets(Data)
+  result = []
+  for i in range(Data.shape[-1]-1):
+    result.append(cv2.bitwise_and(Data[:,:,i],Data[:,:,i+1]))
+  return result
+
 def get_extended_dice(Data):
-  result = set(Data[0]).intersection(*Data[1:])
-  DiceG = Data.shape[-1]*(np.abs(intersect(Data))/Data.sum(axis=2,keepdims=True))
+  G = Data.shape[-1]
+  IntersectOfSet = np.asanyarray(intersect(Data))
+  DiceG = G*(np.abs(IntersectOfSet)/np.abs(Data.sum(axis=2,keepdims=True)))
   return Data 
 
 def get_dice_coefficient(mask_gt, mask_pred):
@@ -28,7 +36,6 @@ def get_dice_coefficient(mask_gt, mask_pred):
     return np.NaN
   volume_intersect = (mask_gt & mask_pred).sum()
   return 2*volume_intersect / volume_sum 
-
 def get_hausdorff(Im1,Im2):
   distance = scipy.spatial.distance.directed_hausdorff(Im1,Im2)
   return distance
