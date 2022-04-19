@@ -40,7 +40,7 @@ def get_hausdorff(Im1,Im2):
   distance = scipy.spatial.distance.directed_hausdorff(Im1,Im2)
   return distance
 
-def main(Path):
+def main(Path,FullSegFlag):
   # Check is we have a full segmentation 
     Data = Load_data(Path)
     if Data[:,:,1].any()==False:
@@ -59,9 +59,12 @@ def main(Path):
     return
 
 parser = argparse.ArgumentParser(description='Process data path.')
-parser.add_argument('-p',help='The arguments file in nifti format')
+parser.add_argument('-p',type=str,help='The arguments file in nifti format')
+parser.add_argument('-f',action='store_true',help="""Set flag only if the full
+                                            set of images are segmented.""")
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    args.p = '/Volumes/T7/Internal_Report_Data/Internal_Report_Graphics/P29_Original_Segmentation/P29_Full-Segmentation.nii.gz'
-    main(args.p)
+    # Uncoment to provide hard-coded path and for debugging 
+    # args.p = '/Volumes/T7/Internal_Report_Data/Internal_Report_Graphics/P29_Original_Segmentation/P29_Full-Segmentation.nii.gz'
+    main(args.p,args.f)

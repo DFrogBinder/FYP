@@ -1,5 +1,4 @@
 import os
-from SimpleITK.SimpleITK import Normalize
 import nibabel as nib
 import numpy as np
 import SimpleITK as sitk
@@ -8,6 +7,8 @@ import platform
 import matplotlib.pyplot as plt
 import PIL
 import cv2
+import argparse
+from SimpleITK.SimpleITK import Normalize
 from tqdm import tqdm
 
 def normalize_image(Data,viz=False): # disp is an array in uint8 data type

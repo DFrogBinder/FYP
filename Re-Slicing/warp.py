@@ -4,12 +4,6 @@ import sys
 import os
 import argparse
 
-# Uncoment and remove self call at the bottom to use as a CMD tool 
-# parser = argparse.ArgumentParser(description="Wrap An Image Using A Deformation Field.")
-# parser.add_argument("input_image")
-# parser.add_argument("displacement_field")
-# parser.add_argument("output_image")
-# args = parser.parse_args()
 
 
 def warp(input_image,displacement_field,output_image):
@@ -71,4 +65,12 @@ def main(path):
             OutputImage = os.path.join(path,'Warped_Images',str('Warped_'+image))
             warp(Input_image,displacement_field,OutputImage)
 
-main('/Volumes/T7/EXP3/')
+# Uncoment and remove self call at the bottom to use as a CMD tool 
+parser = argparse.ArgumentParser(description="Wrap An Image Using A Deformation Field.")
+parser.add_argument('-p',help='Provide path to the folder containing images to warp',type=str)
+
+if __name__ == '__main__':
+    args = parser.parse_args()
+    # Uncoment to provide hard-coded path and for debugging 
+    # args.p = '/Volumes/T7/EXP3/'
+    main(args.p,args.f)
