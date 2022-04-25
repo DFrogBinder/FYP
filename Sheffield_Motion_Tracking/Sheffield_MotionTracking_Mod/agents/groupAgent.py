@@ -166,10 +166,10 @@ class groupAgent(BaseAgent):
             batch_mri = batch_resampled.permute(3, 0, 2, 1)  # (n,1,h,w)
 
             # # to visualize the grid
-            grid = torchvision.utils.make_grid(batch_mri, nrow=5)
+            # grid = torchvision.utils.make_grid(batch_mri, nrow=5)
             # plt.imshow(grid.cpu().permute(1, 2, 0)); plt.axis('off')
             # plt.imsave("Image.png", np.asarray(grid.cpu().permute(1, 2, 0)), format='png')
-            print(grid.cpu().permute(1, 2, 0).shape)
+            print(batch_mri.shape)
 
             # Forward pass
             res = self.model(batch_mri)
