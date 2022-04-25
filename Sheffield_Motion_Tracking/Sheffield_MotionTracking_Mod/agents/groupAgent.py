@@ -157,6 +157,7 @@ class groupAgent(BaseAgent):
             total_loss = 0.
 
             batch_init = train_batch['image'][tio.DATA].to(device)[0, ...]
+            print(type(batch_init))
             batch_resampled = F.interpolate(batch_init.unsqueeze(0).type(torch.float32), (self.args.image_shape[0],
                                                                               self.args.image_shape[1],
                                                                               self.args.num_images_per_group),
@@ -165,8 +166,9 @@ class groupAgent(BaseAgent):
             batch_mri = batch_resampled.permute(3, 0, 2, 1)  # (n,1,h,w)
 
             # # to visualize the grid
-            # grid = torchvision.utils.make_grid(batch_mri_resampled.permute(3, 0, 2, 1), nrow=5)
+            grid = torchvision.utils.make_grid(batch_mri_resampled.permute(3, 0, 2, 1), nrow=5)
             # plt.imshow(grid.cpu().permute(1, 2, 0)); plt.axis('off')
+            plt.imsave("./", grid.cpu().permute(1, 2, 0), format='png')
 
             # Forward pass
             res = self.model(batch_mri)
