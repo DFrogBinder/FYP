@@ -3,6 +3,7 @@ import os
 import shutil
 import time
 import matplotlib.pyplot as plt
+import numpy as np
 
 import SimpleITK as sitk
 import torch
@@ -168,7 +169,7 @@ class groupAgent(BaseAgent):
             # # to visualize the grid
             grid = torchvision.utils.make_grid(batch_mri, nrow=5)
             # plt.imshow(grid.cpu().permute(1, 2, 0)); plt.axis('off')
-            plt.imsave("Image.png", grid.cpu().permute(1, 2, 0), format='png')
+            plt.imsave("Image.png", np.asarray(grid.cpu().permute(1, 2, 0)), format='png')
 
             # Forward pass
             res = self.model(batch_mri)
