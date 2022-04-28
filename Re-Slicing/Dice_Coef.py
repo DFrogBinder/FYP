@@ -40,13 +40,13 @@ def get_hausdorff(Im1,Im2):
   distance = scipy.spatial.distance.directed_hausdorff(Im1,Im2)
   return distance
 
-def main(Im1,Im2):
+def get_stats(Im1,Im2):
 
     Dice_coef = get_dice_coefficient(Im1,Im2)
     Hausdorff = get_hausdorff(Im1,Im2)
     print('Dice Coef is: ' + str(Dice_coef))
     print("Hausdorff distance is: " + str(Hausdorff[0]))
-    return Dice_coef, Hausdorff
+    return Dice_coef, Hausdorff[0]
 
 '''
 parser = argparse.ArgumentParser(description='Process data path.')
