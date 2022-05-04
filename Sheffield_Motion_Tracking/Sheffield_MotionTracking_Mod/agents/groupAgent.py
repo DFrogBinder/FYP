@@ -238,9 +238,11 @@ class groupAgent(BaseAgent):
         FixedImageName = str('wimage'+str(random()).replace('.','')+'.mha')
 
         copy_warped_input_image = sitk.GetImageFromArray(copy_warped_input_image.cpu())
-        copy_warped_input_image.SetSpacing(sitk.ReadImage(test_batch["image"][tio.PATH][0]).GetSpacing())
-        copy_warped_input_image.SetDirection(sitk.ReadImage(test_batch["image"][tio.PATH][0]).GetDirection())
+        copy_warped_input_image.SetSpacing(sitk.ReadImage(train_batch["image"][tio.PATH][0]).GetSpacing())
+        copy_warped_input_image.SetDirection(sitk.ReadImage(train_batch["image"][tio.PATH][0]).GetDirection())
         sitk.WriteImage(copy_warped_input_image, os.path.join(patient_output_path, FixedImageName))
+
+        print('Fixed Image exported!')
 
 
     def validate(self):
