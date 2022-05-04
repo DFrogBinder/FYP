@@ -235,7 +235,7 @@ class groupAgent(BaseAgent):
         copy_warped_input_image = res['template'].clone().detach()
         copy_warped_input_image = copy_warped_input_image[:,0,:,:]
 
-        FixedImageName = str('wimage'+str(random()).replace('.','')+'.mha')
+        FixedImageName = str('wimage'+str(self.current_epoch)+'.mha')
 
         copy_warped_input_image = sitk.GetImageFromArray(copy_warped_input_image.cpu())
         copy_warped_input_image.SetSpacing(sitk.ReadImage(train_batch["image"][tio.PATH][0]).GetSpacing())
