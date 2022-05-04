@@ -232,7 +232,7 @@ class groupAgent(BaseAgent):
 
         print('Exporting Fixed image...')
         
-        copy_warped_input_image = res['warped_input_image'].clone().detach()
+        copy_warped_input_image = res['template'].clone().detach()
         copy_warped_input_image = copy_warped_input_image[:,0,:,:]
 
         FixedImageName = str('wimage'+str(random()).replace('.','')+'.mha')
