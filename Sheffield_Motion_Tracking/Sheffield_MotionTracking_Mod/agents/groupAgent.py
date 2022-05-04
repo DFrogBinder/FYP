@@ -19,6 +19,7 @@ from agents.base import BaseAgent
 from model.util import count_parameters
 from utils.SpatialTransformer import SpatialTransformer
 from utils.data_loader import data_loader
+from random import random
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -229,6 +230,18 @@ class groupAgent(BaseAgent):
                           f'simi. loss {epoch_simi_loss:.4f}, smooth loss {epoch_smooth_loss:.4f}, '
                           f'cyclic loss {epoch_cyclic_loss:.4f}')
 
+        print('Exporting Fixed image...')
+        
+        copy_warped_input_image = res['warped_input_image'].clone().detach()
+        copy_warped_input_image = copy_warped_input_image[:,0,:,:]
+
+        FixedImageName = str('wimage'+str(random()).replace('.','')+'.mha')
+
+        copy_warped_input_image = sitk.GetImageFromArray(copy_warped_input_image)
+        copy_warped_input_image.SetSpacing(sitk.ReadImage(test_batch["image"][tio.PATH][0]).GetSpacing())
+        copy_warped_input_image.SetDirection(sitk.ReadImage(test_batch["image"][tio.PATH][0]).GetDirection())
+        sitk.WriteImage(copy_warped_input_image, os.path.join(patient_output_path, FixedImageName))
+
 
     def validate(self):
 
@@ -372,13 +385,6 @@ class groupAgent(BaseAgent):
                 sitk_output_dvf.SetDirection(sitk.ReadImage(test_batch["image"][tio.PATH][0]).GetDirection())
                 sitk.WriteImage(sitk_output_dvf, os.path.join(patient_output_path, 'dvf.mha'))
                 
-                '''
-                copy_warped_input_image = sitk.GetImageFromArray(copy_warped_input_image)
-                copy_warped_input_image.SetSpacing(sitk.ReadImage(test_batch["image"][tio.PATH][0]).GetSpacing())
-                copy_warped_input_image.SetDirection(sitk.ReadImage(test_batch["image"][tio.PATH][0]).GetDirection())
-                sitk.WriteImage(copy_warped_input_image, os.path.join(patient_output_path, 'wimage.mha'))
-                '''
-    
 
 
                 print(f'finished patient {patient_name}')
