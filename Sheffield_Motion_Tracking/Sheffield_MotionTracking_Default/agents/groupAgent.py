@@ -229,7 +229,8 @@ class groupAgent(BaseAgent):
         print('Exporting Fixed image...')
         
         copy_warped_input_image = res['template'].clone().detach()
-        copy_warped_input_image = copy_warped_input_image[:,0,:,:]
+        #copy_warped_input_image = copy_warped_input_image[:,0,:,:]
+        print(copy_warped_input_image.shape)
 
         FixedImageName = str('wimage'+str(self.current_epoch)+'.mha')
 
