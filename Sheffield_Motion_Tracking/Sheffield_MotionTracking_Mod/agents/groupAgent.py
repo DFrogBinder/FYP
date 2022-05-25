@@ -1,5 +1,6 @@
 import logging
 import os
+from pipes import Template
 import shutil
 import time
 import matplotlib.pyplot as plt
@@ -230,20 +231,34 @@ class groupAgent(BaseAgent):
                           f'simi. loss {epoch_simi_loss:.4f}, smooth loss {epoch_smooth_loss:.4f}, '
                           f'cyclic loss {epoch_cyclic_loss:.4f}')
 
-        print('Exporting Fixed image...')
         
-        copy_warped_input_image = res['template'].clone().detach()
+        copy_warped_input_image = res['warped_input_image'].clone().detach()
+        print("Warped Input Image shape before extraction "+str(copy_warped_input_image.shape))
         copy_warped_input_image = copy_warped_input_image[:,0,:,:]
-        print("Warped Input Image Shape is: "+str(copy_warped_input_image.shape))
+        print("Warped Input Image shape after extraction "+str(copy_warped_input_image.shape))
+
+
+        copy_template_image = res['template'].clone.detach()
+        print("Template Image shape before extraction "+str(copy_template_image.shape))
+        copy_template_image = copy_template_image[:,0,:,:]
+        print("Template Input Image shape after extraction "+str(copy_template_image.shape))
+
         print("List of all available images: ")
         print(res)
 
-        FixedImageName = str('wimage'+str(self.current_epoch)+'.mha')
+        print('Exporting images...')
+        FixedImageName = str('warped_input_image'+str(self.current_epoch)+'.mha')
+        TemplateImageName = str('template_image'+str(self.current_epoch)+'.mha')
 
         copy_warped_input_image = sitk.GetImageFromArray(copy_warped_input_image.cpu())
         copy_warped_input_image.SetSpacing(sitk.ReadImage(train_batch["image"][tio.PATH][0]).GetSpacing())
         copy_warped_input_image.SetDirection(sitk.ReadImage(train_batch["image"][tio.PATH][0]).GetDirection())
         sitk.WriteImage(copy_warped_input_image, os.path.join(FixedImageName))
+
+        copy_template_image = sitk.GetImageFromArray(copy_template_image.cpu())
+        copy_template_image.SetSpacing(sitk.ReadImage(train_batch["image"][tio.PATH][0]).GetSpacing())
+        copy_template_image.SetDirection(sitk.ReadImage(train_batch["image"][tio.PATH][0]).GetDirection())
+        sitk.WriteImage(copy_template_image, os.path.join(TemplateImageName))
 
         print('Fixed Image exported!')
 
