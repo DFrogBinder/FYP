@@ -238,7 +238,7 @@ class groupAgent(BaseAgent):
         print("Warped Input Image shape after extraction "+str(copy_warped_input_image.shape))
 
 
-        copy_template_image = res['template'].clone.detach()
+        copy_template_image = res['template'].clone().detach()
         print("Template Image shape before extraction "+str(copy_template_image.shape))
         copy_template_image = copy_template_image[:,0,:,:]
         print("Template Input Image shape after extraction "+str(copy_template_image.shape))
