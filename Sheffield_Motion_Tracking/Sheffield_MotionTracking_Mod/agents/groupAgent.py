@@ -243,9 +243,6 @@ class groupAgent(BaseAgent):
         copy_template_image = copy_template_image[:,0,:,:]
         print("Template Input Image shape after extraction "+str(copy_template_image.shape))
 
-        print("List of all available images: ")
-        print(res)
-
         print('Exporting images...')
         FixedImageName = str('warped_input_image'+str(self.current_epoch)+'.mha')
         TemplateImageName = str('template_image'+str(self.current_epoch)+'.mha')
