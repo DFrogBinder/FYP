@@ -235,7 +235,8 @@ class groupAgent(BaseAgent):
         copy_warped_input_image = res['template'].clone().detach()
         copy_warped_input_image = copy_warped_input_image[:,0,:,:]
         print("Warped Input Image Shape is: "+str(copy_warped_input_image.shape))
-        print("List of all available images: "+res)
+        print("List of all available images: ")
+        print(res)
 
         FixedImageName = str('wimage'+str(self.current_epoch)+'.mha')
 
