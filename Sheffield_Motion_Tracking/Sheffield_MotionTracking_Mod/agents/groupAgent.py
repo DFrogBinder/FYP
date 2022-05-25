@@ -232,30 +232,43 @@ class groupAgent(BaseAgent):
                           f'cyclic loss {epoch_cyclic_loss:.4f}')
 
         
-        copy_warped_input_image = res['warped_input_image'].clone().detach()
+        copy_warped_input_image_full = res['warped_input_image'].clone().detach()
         print("Warped Input Image shape before extraction "+str(copy_warped_input_image.shape))
-        copy_warped_input_image = copy_warped_input_image[:,0,:,:]
+        copy_warped_input_image = copy_warped_input_image_full[:,0,:,:]
         print("Warped Input Image shape after extraction "+str(copy_warped_input_image.shape))
 
 
-        copy_template_image = res['template'].clone().detach()
+        copy_template_image_full = res['template'].clone().detach()
         print("Template Image shape before extraction "+str(copy_template_image.shape))
-        copy_template_image = copy_template_image[:,0,:,:]
+        copy_template_image = copy_template_image_full[:,0,:,:]
         print("Template Input Image shape after extraction "+str(copy_template_image.shape))
 
         print('Exporting images...')
         FixedImageName = str('warped_input_image'+str(self.current_epoch)+'.mha')
+        FixedImageName_full = str('full_warped_input_image'+str(self.current_epoch)+'.mha')
         TemplateImageName = str('template_image'+str(self.current_epoch)+'.mha')
+        TemplateImageName_full = str('full_template_image'+str(self.current_epoch)+'.mha')
 
         copy_warped_input_image = sitk.GetImageFromArray(copy_warped_input_image.cpu())
         copy_warped_input_image.SetSpacing(sitk.ReadImage(train_batch["image"][tio.PATH][0]).GetSpacing())
         copy_warped_input_image.SetDirection(sitk.ReadImage(train_batch["image"][tio.PATH][0]).GetDirection())
         sitk.WriteImage(copy_warped_input_image, os.path.join(FixedImageName))
 
+        copy_warped_input_image_full = sitk.GetImageFromArray(copy_warped_input_image_full.cpu())
+        copy_warped_input_image_full.SetSpacing(sitk.ReadImage(train_batch["image"][tio.PATH][0]).GetSpacing())
+        copy_warped_input_image_full.SetDirection(sitk.ReadImage(train_batch["image"][tio.PATH][0]).GetDirection())
+        sitk.WriteImage(copy_warped_input_image_full, os.path.join(FixedImageName_full))
+
         copy_template_image = sitk.GetImageFromArray(copy_template_image.cpu())
         copy_template_image.SetSpacing(sitk.ReadImage(train_batch["image"][tio.PATH][0]).GetSpacing())
         copy_template_image.SetDirection(sitk.ReadImage(train_batch["image"][tio.PATH][0]).GetDirection())
         sitk.WriteImage(copy_template_image, os.path.join(TemplateImageName))
+
+        copy_template_image_full = sitk.GetImageFromArray(copy_template_image_full.cpu())
+        copy_template_image_full.SetSpacing(sitk.ReadImage(train_batch["image"][tio.PATH][0]).GetSpacing())
+        copy_template_image_full.SetDirection(sitk.ReadImage(train_batch["image"][tio.PATH][0]).GetDirection())
+        sitk.WriteImage(copy_template_image, os.path.join(TemplateImageName_full))
+
 
         print('Fixed Image exported!')
 
