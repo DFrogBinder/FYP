@@ -154,6 +154,8 @@ class groupAgent(BaseAgent):
         running_ncc_per_frame = [0. for x in range(self.args.num_images_per_group)]
 
         for train_batch in self.train_loader:
+            print("Slef.train_loader is: "+str(self.train_loader))
+            print("Train_Batch is: "+str(train_batch))
             # switch model to training mode, clear gradient accumulators
             self.model.train()
             self.optimizer.zero_grad()
@@ -270,7 +272,7 @@ class groupAgent(BaseAgent):
         sitk.WriteImage(copy_template_image, os.path.join(TemplateImageName_full))
 
 
-        print('Fixed Image exported!')
+        print('Images exported!')
 
 
     def validate(self):
