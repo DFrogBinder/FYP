@@ -155,7 +155,7 @@ class groupAgent(BaseAgent):
 
         for train_batch in self.train_loader:
             print("Slef.train_loader is: "+str(self.train_loader))
-            print("Train_Batch is: "+str(train_batch))
+            print("Train_Batch is: "+str(train_batch.shape))
             # switch model to training mode, clear gradient accumulators
             self.model.train()
             self.optimizer.zero_grad()
