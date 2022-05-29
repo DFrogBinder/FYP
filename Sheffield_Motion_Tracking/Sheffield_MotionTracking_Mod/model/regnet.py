@@ -55,6 +55,8 @@ class RegNet_single(nn.Module):
         '''
 
         original_image_shape = input_image.shape[2:]
+        print("input_image : (n, 1, h, w) or (n, 1, d, h, w) The first dimension contains the grouped input images.")
+        print("Original Image Shape in regnet.py: "+str(original_image_shape))
         # plt.imshow(input_image[10,0,:,:])
         # plt.show()
         if self.scale < 1:
@@ -75,7 +77,8 @@ class RegNet_single(nn.Module):
             disp_t2i = scaled_disp_t2i
 
         warped_input_image = self.spatial_transform(input_image, disp_t2i)  # (n, 1, h, w) or (n, 1, d, h, w)
-        #template = torch.mean(warped_input_image, 0, keepdim=True)  # (1, 1, h, w) or (1, 1, d, h, w)
+        template_mean = torch.mean(warped_input_image, 0, keepdim=True)  # (1, 1, h, w) or (1, 1, d, h, w)
+        print("Original template shape is: "+str(template_mean))
         template = torch.reshape(input_image[1,0,:,:],[1,1,384,384])
 
         res = {'disp_t2i': disp_t2i, 'scaled_disp_t2i': scaled_disp_t2i, 'warped_input_image': warped_input_image,
