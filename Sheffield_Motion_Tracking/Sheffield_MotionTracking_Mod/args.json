@@ -24,5 +24,5 @@
   "validation_data_folder" : "/mnt/Disk1/Boyan/InputData/Dataset_Central_Slice_NoNoise/Validation",
   "test_data_folder":"/mnt/Disk1/Boyan/InputData/Dataset_Central_Slice_NoNoise/Test",
   "exp_log_path":"/mnt/Disk1/Boyan/ModelOutputs",
-  "exp_name":"28_03_NoCyclic_NCC-5_depth-6_130ep"
+  "exp_name":"TestRuns"
 }
