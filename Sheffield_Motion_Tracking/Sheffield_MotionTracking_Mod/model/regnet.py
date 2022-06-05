@@ -77,9 +77,10 @@ class RegNet_single(nn.Module):
             disp_t2i = scaled_disp_t2i
 
         warped_input_image = self.spatial_transform(input_image, disp_t2i)  # (n, 1, h, w) or (n, 1, d, h, w)
-        template_mean = torch.mean(warped_input_image, 0, keepdim=True)  # (1, 1, h, w) or (1, 1, d, h, w)
-        print("Original template shape is: "+str(template_mean.shape))
-        template = torch.reshape(input_image[1,0,:,:],[1,1,384,384])
+        template = torch.mean(warped_input_image, 0, keepdim=True)  # (1, 1, h, w) or (1, 1, d, h, w)
+        print("Original template shape is: "+str(template.shape))
+        # Uncomment to set template image 
+        #template = torch.reshape(input_image[1,0,:,:],[1,1,384,384])
 
         res = {'disp_t2i': disp_t2i, 'scaled_disp_t2i': scaled_disp_t2i, 'warped_input_image': warped_input_image,
                'template': template}
