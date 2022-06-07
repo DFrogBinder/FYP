@@ -49,6 +49,7 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
                                                                image_interpolation='linear')])
 
         train_set = tio.SubjectsDataset(train_subjects, transform=training_transform)
+        print('Current transform for training data '+ str(training_transform))
 
         # # Plotting the first patient for inspection
         # print("Plotting first subject from the train set...")
