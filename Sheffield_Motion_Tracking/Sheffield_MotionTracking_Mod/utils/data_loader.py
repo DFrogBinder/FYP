@@ -12,7 +12,7 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
         train_images_dir = Path(os.path.join(train_data_folder, 'images'))
         train_image_paths = sorted(train_images_dir.glob('*.mha'))
 
-    print('All train image paths are: ' + str(train_image_paths))
+        print('All train image paths are: ' + str(train_image_paths))
 
         train_subjects = []
         for image_path in train_image_paths:
