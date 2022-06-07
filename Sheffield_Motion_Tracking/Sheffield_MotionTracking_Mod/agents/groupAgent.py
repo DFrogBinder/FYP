@@ -159,7 +159,7 @@ class groupAgent(BaseAgent):
             print('Length of Train_Batch is '+str(len(train_batch)))
             print('Train Batch is :')
             print(train_batch)
-            print("Train_Batch image length is: "+str(len(train_batch['image'])))
+            print("Train_Batch image length is: "+str(type(train_batch['image']['data'])))
             # switch model to training mode, clear gradient accumulators
             self.model.train()
             self.optimizer.zero_grad()
