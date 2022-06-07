@@ -57,10 +57,10 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
 
 
         print('Training set:', len(train_set), 'subjects')
-        Batch_Size = 'n/a'
-        print('Batch size for train_loader is '+str(Batch_Size))
+        print('Train set is a ' + str(type(train_set)))
         train_loader = torch.utils.data.DataLoader(
             train_set,
+            batch_size=1,
             shuffle=True,
             num_workers=num_workers)
 
