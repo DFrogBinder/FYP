@@ -59,6 +59,7 @@ def data_loader(train_data_folder=None, validation_data_folder=None, test_data_f
         print('Training set:', len(train_set), 'subjects')
         print('Train set is a ' + str(type(train_set)))
         print('The first entity of training set is '+ str(type(train_set[0])))
+        print('The length of a single subject is '+ str(len(train_set[0])))
         train_loader = torch.utils.data.DataLoader(
             train_set,
             batch_size=1,
