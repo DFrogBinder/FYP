@@ -154,7 +154,7 @@ class groupAgent(BaseAgent):
         running_ncc_per_frame = [0. for x in range(self.args.num_images_per_group)]
 
         for train_batch in self.train_loader:
-            print("Slef.train_loader is: "+str(type(self.train_loader)))
+            print("Self.train_loader is: "+str(type(self.train_loader)))
             print('Type of Train_Batch is '+str(type(train_batch)))
             print('Length of Train_Batch is '+str(len(train_batch)))
             print('Train Batch is :')
